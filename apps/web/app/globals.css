@@ -1,0 +1,61 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* VIP CLINIC PALETTE - DEEP & PROFESSIONAL */
+    --background: 220 33% 98%;    /* Off-white background */
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    /* Deep Emerald/Forest Green for VIP look */
+    --primary: 160 84% 15%;       /* #064e3b - Deep Forest */
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 160 30% 95%;     /* Very light green */
+    --secondary-foreground: 160 84% 15%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    /* Gold/Bronze Accent for VIP feeling */
+    --accent: 35 60% 50%;         /* #b47d2b - Bronze/Gold */
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 160 84% 15%;
+
+    --radius: 1.25rem;            /* More rounded for premium feel */
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    /* ... other dark mode vars if needed */
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+/* Premium smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}

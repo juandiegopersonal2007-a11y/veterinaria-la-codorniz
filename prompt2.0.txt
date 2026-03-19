@@ -1,0 +1,453 @@
+🐾 PROMPT DE PRODUCCIÓN — VETERINARIA LA CODORNIZ
+ROL DEL AGENTE
+Actúa como un equipo senior de ingeniería compuesto por:
+
+Arquitecto de software (Clean Architecture, SOLID, DRY)
+Desarrollador Full Stack (Next.js 14 + Node.js)
+DBA (PostgreSQL + Prisma)
+DevOps (CI/CD, Docker, cloud deploy)
+UX/UI Designer (mobile-first, accesibilidad WCAG 2.1)
+Especialista en SEO técnico
+
+Tu objetivo es generar código completo, funcional y listo para producción para una plataforma web de veterinaria. No generes placeholders, no dejes TODOs sin resolver, no uses datos ficticios en lógica real.
+
+🏗️ ARQUITECTURA DEL SISTEMA
+Stack tecnológico
+CapaTecnologíaFrontendNext.js 14 (App Router, SSR/SSG)EstilosTailwind CSS v3 + shadcn/uiBackendNode.js + Express (API REST)ORMPrisma 5Base de datosPostgreSQL 15AuthJWT + bcrypt + middleware de rolesStorageCloudinary (imágenes)Deploy FrontendVercelDeploy BackendRailwayDB CloudSupabase (PostgreSQL)CI/CDGitHub Actions
+Estructura de carpetas
+veterinaria-la-codorniz/
+├── apps/
+│   ├── web/                        # Next.js 14
+│   │   ├── app/
+│   │   │   ├── (public)/           # Rutas públicas
+│   │   │   │   ├── page.tsx        # Home
+│   │   │   │   ├── servicios/
+│   │   │   │   ├── chip/           # Buscador de chip
+│   │   │   │   └── contacto/
+│   │   │   ├── (admin)/            # Rutas protegidas
+│   │   │   │   ├── dashboard/
+│   │   │   │   ├── citas/
+│   │   │   │   ├── clientes/
+│   │   │   │   └── mascotas/
+│   │   │   ├── api/                # API Routes Next.js (solo proxy ligero)
+│   │   │   └── layout.tsx
+│   │   ├── components/
+│   │   │   ├── ui/                 # shadcn/ui
+│   │   │   ├── admin/
+│   │   │   └── public/
+│   │   ├── lib/
+│   │   │   ├── api-client.ts
+│   │   │   └── auth.ts
+│   │   └── middleware.ts           # Protección de rutas admin
+│   │
+│   └── api/                        # Express backend
+│       ├── src/
+│       │   ├── controllers/
+│       │   ├── routes/
+│       │   ├── middlewares/
+│       │   │   ├── auth.middleware.ts
+│       │   │   ├── error.middleware.ts
+│       │   │   └── validate.middleware.ts
+│       │   ├── services/
+│       │   ├── schemas/            # Zod schemas
+│       │   └── app.ts
+│       └── prisma/
+│           └── schema.prisma
+├── .github/
+│   └── workflows/
+│       ├── deploy-web.yml
+│       └── deploy-api.yml
+└── .env.example
+
+🗄️ SCHEMA DE BASE DE DATOS (Prisma)
+Genera el archivo schema.prisma completo con los siguientes modelos:
+prisma// schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      Role     @default(ADMIN)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Client {
+  id        String   @id @default(cuid())
+  name      String
+  phone     String
+  email     String?
+  address   String?
+  pets      Pet[]
+  appointments Appointment[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Pet {
+  id          String       @id @default(cuid())
+  name        String
+  species     String
+  breed       String?
+  birthDate   DateTime?
+  weight      Float?
+  chipNumber  String?      @unique
+  photoUrl    String?
+  clientId    String
+  client      Client       @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  medicalHistory MedicalRecord[]
+  appointments   Appointment[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model MedicalRecord {
+  id          String   @id @default(cuid())
+  petId       String
+  pet         Pet      @relation(fields: [petId], references: [id], onDelete: Cascade)
+  date        DateTime @default(now())
+  diagnosis   String
+  treatment   String
+  notes       String?
+  vetName     String
+  createdAt   DateTime @default(now())
+}
+
+model Appointment {
+  id        String            @id @default(cuid())
+  clientId  String
+  client    Client            @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  petId     String
+  pet       Pet               @relation(fields: [petId], references: [id], onDelete: Cascade)
+  date      DateTime
+  service   ServiceType
+  status    AppointmentStatus @default(PENDING)
+  notes     String?
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+}
+
+model Service {
+  id          String  @id @default(cuid())
+  name        String
+  description String
+  price       Float
+  imageUrl    String?
+  active      Boolean @default(true)
+}
+
+enum Role {
+  ADMIN
+  STAFF
+}
+
+enum ServiceType {
+  CONSULTA
+  ESTETICA
+  BANO
+  CIRUGIA_MENOR
+  VACUNACION
+  DESPARASITACION
+  OTRO
+}
+
+enum AppointmentStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
+🔒 BACKEND — API REST (Express + Node.js)
+Endpoints requeridos
+Auth
+POST   /api/auth/login
+POST   /api/auth/logout
+GET    /api/auth/me
+Clientes
+GET    /api/clients
+POST   /api/clients
+GET    /api/clients/:id
+PUT    /api/clients/:id
+DELETE /api/clients/:id
+Mascotas
+GET    /api/pets
+POST   /api/pets
+GET    /api/pets/:id
+PUT    /api/pets/:id
+DELETE /api/pets/:id
+GET    /api/pets/chip/:chipNumber   ← Buscador público
+Citas
+GET    /api/appointments
+POST   /api/appointments
+GET    /api/appointments/:id
+PUT    /api/appointments/:id
+DELETE /api/appointments/:id
+GET    /api/appointments/calendar?month=YYYY-MM
+Dashboard
+GET    /api/dashboard/stats
+Reglas de seguridad
+
+Todos los endpoints excepto GET /api/pets/chip/:chipNumber y POST /api/auth/login requieren JWT válido
+Validar todos los inputs con Zod
+Sanitizar contra XSS con xss-clean
+Rate limiting con express-rate-limit (100 req/15min por IP)
+Helmet.js para headers de seguridad
+CORS restringido al dominio del frontend
+Contraseñas hasheadas con bcrypt (salt rounds: 12)
+JWT con expiración de 8h, refresh token de 7d
+Logs de errores con Winston
+
+
+🌐 FRONTEND — Next.js 14 (App Router)
+Páginas públicas
+/ — Home
+
+Hero section: título "Cuidamos a tu mascota como familia", subtítulo, CTA "Agendar cita"
+Sección de servicios destacados (cards con icono, nombre y precio)
+Sección "¿Por qué elegirnos?" (3 puntos clave)
+Mapa de ubicación embebido (Google Maps iframe)
+Footer con datos de contacto, redes sociales y horario
+
+/servicios — Catálogo de servicios
+
+Grid de cards con imagen, nombre, descripción y precio
+Datos obtenidos desde la API (SSG con revalidación cada 24h)
+
+/chip — Buscador de chip
+
+Input de búsqueda con validación
+Resultado: nombre de mascota, especie, raza, dueño (nombre y teléfono parcial por privacidad)
+Manejo de errores: chip no encontrado, error de red
+Sin login requerido
+
+/contacto — Contacto
+
+Formulario: nombre, email, mensaje
+Integración con Resend o EmailJS
+
+Panel Admin /admin/*
+/admin/dashboard
+
+Cards con stats: total citas del mes, clientes registrados, mascotas registradas
+Gráfica de citas por semana (recharts)
+Lista de próximas citas del día
+
+/admin/citas
+
+Vista de calendario (react-big-calendar)
+Modal para crear/editar/cancelar cita
+Filtros por estado y fecha
+
+/admin/clientes
+
+Tabla paginada con búsqueda
+Modal de detalle con historial de mascotas y citas
+CRUD completo
+
+/admin/mascotas
+
+Tabla paginada con búsqueda por nombre o chip
+Perfil de mascota con historial médico
+Subida de foto con Cloudinary
+
+Protección de rutas admin
+typescript// middleware.ts
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
+
+export function middleware(request: NextRequest) {
+  const token = request.cookies.get('auth-token')
+  if (!token && request.nextUrl.pathname.startsWith('/admin')) {
+    return NextResponse.redirect(new URL('/login', request.url))
+  }
+  return NextResponse.next()
+}
+
+export const config = {
+  matcher: ['/admin/:path*']
+}
+
+🎨 DISEÑO Y UX
+
+Paleta de colores:
+
+Principal: #2D9B5A (verde veterinaria)
+Secundario: #F0FFF4 (verde muy claro, fondos)
+Acento: #F97316 (naranja CTA)
+Texto: #1A1A1A
+Fondo: #FFFFFF
+
+
+Tipografía: Inter (Google Fonts)
+Mobile first: breakpoints Tailwind estándar
+Componentes: shadcn/ui como base, personalizado con la paleta
+Animaciones: Framer Motion para transiciones de página y cards
+Accesibilidad: roles ARIA, contraste WCAG AA, navegación por teclado
+
+
+⚙️ CONFIGURACIÓN DE VARIABLES DE ENTORNO
+env# .env.example
+
+# Base de datos
+DATABASE_URL="postgresql://user:password@host:5432/veterinaria_codorniz"
+
+# JWT
+JWT_SECRET="tu_secreto_super_seguro_de_al_menos_32_chars"
+JWT_REFRESH_SECRET="otro_secreto_diferente_32_chars"
+JWT_EXPIRES_IN="8h"
+JWT_REFRESH_EXPIRES_IN="7d"
+
+# Cloudinary
+CLOUDINARY_CLOUD_NAME=""
+CLOUDINARY_API_KEY=""
+CLOUDINARY_API_SECRET=""
+
+# Email (Resend)
+RESEND_API_KEY=""
+CONTACT_EMAIL="contacto@veterinariacodorniz.com"
+
+# URLs
+NEXT_PUBLIC_API_URL="https://api.veterinariacodorniz.com"
+FRONTEND_URL="https://veterinariacodorniz.com"
+
+# Admin inicial (seed)
+ADMIN_EMAIL="admin@veterinariacodorniz.com"
+ADMIN_PASSWORD="CambiarEsto123!"
+
+🚀 CI/CD — GitHub Actions
+Deploy Frontend (Vercel)
+yaml# .github/workflows/deploy-web.yml
+name: Deploy Web
+
+on:
+  push:
+    branches: [main]
+    paths: ['apps/web/**']
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+      - run: npm run build --workspace=apps/web
+      - uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args: '--prod'
+Deploy Backend (Railway)
+yaml# .github/workflows/deploy-api.yml
+name: Deploy API
+
+on:
+  push:
+    branches: [main]
+    paths: ['apps/api/**']
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+      - run: npm run build --workspace=apps/api
+      - uses: bervProject/railway-deploy@v1.0.0
+        with:
+          railway_token: ${{ secrets.RAILWAY_TOKEN }}
+          service: 'api'
+
+📞 SECCIÓN DE AYUDA / CONTACTO RÁPIDO
+Componente flotante (visible en todas las páginas)
+Crea un botón flotante en la esquina inferior derecha con un ícono de ayuda (❓). Al hacer clic, se despliega un panel con los siguientes canales de contacto:
+CanalÍconoAcción al hacer clicWhatsAppWhatsApp verdeAbre https://wa.me/5231311631033?text=Hola%2C%20necesito%20ayuda%20con%20mi%20mascota%20%F0%9F%90%BEFacebookícono Facebook azulAbre https://facebook.com/REEMPLAZAR_URL en nueva pestañaInstagramícono Instagram degradadoAbre https://instagram.com/REEMPLAZAR_USUARIO en nueva pestañaCorreoícono envelopeAbre mailto:REEMPLAZAR_CORREO?subject=Ayuda%20-%20Veterinaria%20La%20Codorniz&body=Hola%2C%20necesito%20ayuda%20con%20mi%20mascota.
+Mensaje preescrito de WhatsApp
+El enlace de WhatsApp debe incluir este mensaje codificado en URL:
+Hola, necesito ayuda con mi mascota 🐾
+URL completa:
+https://wa.me/5231311631033?text=Hola%2C%20necesito%20ayuda%20con%20mi%20mascota%20%F0%9F%90%BE
+También incluye una página dedicada /ayuda
+
+Título: "¿Cómo podemos ayudarte?"
+Subtítulo: "Contáctanos por el canal que prefieras, respondemos rápido 🐾"
+Cards grandes con ícono, nombre del canal y botón de acción
+Mismo comportamiento de enlaces que el componente flotante
+Diseño mobile-first, botones grandes y fáciles de tocar
+
+Reglas de implementación
+
+Todos los enlaces abren en target="_blank" con rel="noopener noreferrer" excepto WhatsApp y correo
+Los íconos se obtienen de lucide-react o react-icons/fa (FontAwesome)
+El componente flotante usa framer-motion para la animación de apertura/cierre
+Los campos REEMPLAZAR_* deben estar en el archivo .env.example como:
+
+env# Redes sociales y contacto
+NEXT_PUBLIC_WHATSAPP_NUMBER="5231311631033"
+NEXT_PUBLIC_WHATSAPP_MESSAGE="Hola, necesito ayuda con mi mascota 🐾"
+NEXT_PUBLIC_FACEBOOK_URL="https://facebook.com/REEMPLAZAR"
+NEXT_PUBLIC_INSTAGRAM_URL="https://instagram.com/REEMPLAZAR"
+NEXT_PUBLIC_CONTACT_EMAIL="REEMPLAZAR@correo.com"
+
+Construir la URL de WhatsApp dinámicamente desde las variables de entorno para facilitar cambios futuros
+
+
+🔍 SEO
+Genera en cada página pública:
+typescript// Ejemplo para /servicios
+export const metadata: Metadata = {
+  title: 'Servicios | Veterinaria La Codorniz',
+  description: 'Estética canina, baños, consultas y más. La mejor veterinaria de [ciudad].',
+  keywords: ['veterinaria', 'estética canina', 'veterinaria cerca de mí', 'Veterinaria La Codorniz'],
+  openGraph: {
+    title: 'Veterinaria La Codorniz',
+    description: 'Cuidamos a tu mascota como familia.',
+    url: 'https://veterinariacodorniz.com/servicios',
+    siteName: 'Veterinaria La Codorniz',
+    images: [{ url: '/og-image.jpg', width: 1200, height: 630 }],
+    locale: 'es_MX',
+    type: 'website',
+  },
+}
+Además genera:
+
+app/sitemap.ts — sitemap dinámico
+app/robots.ts — robots.txt
+Schema.org JSON-LD para LocalBusiness en el Home
+
+
+📋 SEED DE BASE DE DATOS
+Genera prisma/seed.ts con:
+
+1 usuario admin
+3 servicios de ejemplo
+2 clientes de ejemplo con sus mascotas y una cita cada uno
+
+
+📦 INSTRUCCIONES FINALES AL AGENTE
+
+Genera cada archivo completo, sin omitir imports ni lógica
+Usa TypeScript estricto en todo el proyecto (strict: true en tsconfig)
+Maneja todos los errores con try/catch y respuestas HTTP apropiadas
+No dejes comentarios tipo // TODO o // implementar aquí
+Cada componente React debe ser funcional y tipado
+Los formularios usan react-hook-form + zod para validación en cliente
+Las llamadas a la API usan SWR o TanStack Query para caché
+Genera el proyecto en orden: schema → seed → backend → frontend → CI/CD

@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>La Codorniz - Veterinaria y Tienda de Mascotas</title>
+
+    <!-- Seguridad: Content Security Policy -->
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https:; connect-src 'self'">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+
+    <!-- Fuentes y Iconos -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Montserrat:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* ================= VARIABLES ================= */
+        :root {
+            --primary: #C5A059;
+            /* Elegant Gold */
+            --primary-dark: #A28242;
+            /* Darker Gold */
+            --primary-light: #DFCDA1;
+            /* Lighter Gold */
+            --secondary: #2C3539;
+            /* Dark Charcoal / Gunmetal */
+            --accent: #F9F6F0;
+            /* Pristine Off-White/Cream */
+            --bg-light: #FAFAFA;
+            /* Light Gray/White Background */
+            --bg-card: #ffffff;
+            /* White Card Background */
+            --text-main: #1A1A1A;
+            /* Dark Gray Text */
+            --text-light: #666666;
+            /* Muted Gray Text */
+            --error: #e63946;
+            --success: #C5A059;
+            --radius: 12px;
+            --shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+            --transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        /* ================= GENERAL ================= */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            color: var(--text-main);
+            background: var(--bg-light);
+            line-height: 1.6;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            color: var(--secondary);
+            letter-spacing: 0.5px;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        section {
+            padding: 100px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 14px 32px;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            gap: 10px;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 15px rgba(45, 106, 79, 0.2);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(45, 106, 79, 0.3);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary-light);
+            color: white;
+            border-color: var(--primary-light);
+            transform: translateY(-2px);
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.8rem;
+            margin-bottom: 60px;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 4px;
+            background: var(--secondary);
+            border-radius: 2px;
+        }
+
+        /* ================= ANIMACIÓN DE ENTRADA ================= */
+        #loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background-color: white;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.6s ease;
+        }
+
+        .quail-container {
+            width: 120px;
+            height: 120px;
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .quail {
+            width: 100%;
+            height: 100%;
+            animation: bounce 0.6s infinite alternate ease-in-out, moveAcross 4s forwards linear;
+            position: absolute;
+        }
+
+        .quail-svg {
+            fill: var(--primary);
+            filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.1));
+        }
+
+        .loader-text {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            color: var(--primary);
+            letter-spacing: 2px;
+            opacity: 0;
+            animation: fadeIn 1s 0.5s forwards;
+        }
+
+        @keyframes bounce {
+            0% {
+                transform: translateY(0) scale(1.05, 0.95);
+            }
+
+            100% {
+                transform: translateY(-20px) scale(0.95, 1.05);
+            }
+        }
+
+        @keyframes moveAcross {
+            0% {
+                left: -200px;
+                opacity: 0;
+            }
+
+            15% {
+                opacity: 1;
+            }
+
+            85% {
+                opacity: 1;
+            }
+
+            100% {
+                left: 200px;
+                opacity: 0;
+            }
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        body.loaded #loader {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* ================= NAVEGACIÓN ================= */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
+            transition: var(--transition);
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--secondary);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo i {
+            color: var(--secondary);
+            font-size: 2.2rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            font-weight: 600;
+            color: var(--text-main);
+            transition: var(--transition);
+            font-size: 1rem;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .menu-toggle {
+            display: none;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: var(--primary-dark);
+        }
+
+        /* ================= HERO SECTION ================= */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding-top: 120px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -100px;
+            right: -100px;
+            width: 400px;
+            height: 400px;
+            background: var(--primary-light);
+            opacity: 0.05;
+            border-radius: 50%;
+        }
+
+        .hero-content {
+            flex: 1;
+            z-index: 1;
+        }
+
+        .hero-title {
+            font-size: 4rem;
+            line-height: 1.1;
+            margin-bottom: 25px;
+        }
+
+        .hero-title span {
+            color: var(--primary);
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: var(--text-light);
+            margin-bottom: 35px;
+            max-width: 600px;
+        }
+
+        .hero-ctas {
+            display: flex;
+            gap: 20px;
+        }
+
+        .hero-image {
+            flex: 1;
+            position: relative;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .hero-image img {
+            width: 90%;
+            height: 500px;
+            border-radius: 30px;
+            object-fit: cover;
+            box-shadow: 20px 20px 60px rgba(0, 0, 0, 0.1);
+        }
+
+        .floating-badge {
+            position: absolute;
+            bottom: 40px;
+            left: 0;
+            background: white;
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            animation: float 3s infinite alternate ease-in-out;
+        }
+
+        @keyframes float {
+            to {
+                transform: translateY(-10px);
+            }
+        }
+
+        /* Servicios Destacados */
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-bottom: 80px;
+        }
+
+        .service-card {
+            background: var(--bg-card);
+            padding: 40px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            border: 1px solid rgba(0, 0, 0, 0.02);
+            text-align: center;
+        }
+
+        .service-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+        }
+
+        .service-card i {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 25px;
+            display: inline-block;
+        }
+
+        .service-card h4 {
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+        }
+
+        .service-price {
+            color: var(--secondary);
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin-top: 15px;
+        }
+
+        /* ================= FAQ ACORDEÓN ================= */
+        .faq-container {
+            max-width: 850px;
+            margin: 0 auto;
+        }
+
+        .faq-item {
+            background: var(--bg-card);
+            margin-bottom: 20px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            border: 1px solid rgba(0, 0, 0, 0.02);
+        }
+
+        .faq-question {
+            padding: 25px 30px;
+            width: 100%;
+            text-align: left;
+            background: none;
+            border: none;
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--primary-dark);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: var(--transition);
+        }
+
+        .faq-question:hover {
+            background: rgba(45, 106, 79, 0.02);
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .faq-answer p {
+            padding: 0 30px 25px;
+            color: var(--text-light);
+            font-size: 1.05rem;
+        }
+
+        .faq-item.active .faq-answer {
+            max-height: 300px;
+        }
+
+        .faq-item.active .faq-question {
+            color: var(--primary);
+        }
+
+        .faq-item.active .faq-question i {
+            transform: rotate(180deg);
+            color: var(--primary);
+        }
+
+        /* ================= FORMULARIOS Y PACIENTE ================= */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+
+        .card {
+            background: var(--bg-card);
+            padding: 45px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(0, 0, 0, 0.02);
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #edf2f4;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 1rem;
+            transition: var(--transition);
+            background: #f8f9fa;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-light);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(82, 183, 136, 0.1);
+        }
+
+        .patient-data {
+            margin-top: 35px;
+            display: none;
+            border-top: 2px solid #f1f3f5;
+            padding-top: 30px;
+            animation: slideUp 0.5s forwards;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .data-block {
+            background: #f8f9fa;
+            padding: 20px;
+            border-left: 5px solid var(--primary);
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+
+        .data-block h5 {
+            color: var(--primary-dark);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* ================= PRODUCTOS ================= */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 35px;
+        }
+
+        .product-card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            border: 1px solid rgba(0, 0, 0, 0.02);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .product-card:hover {
+            transform: translateY(-12px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-img {
+            width: 100%;
+            height: 250px;
+            background: #f1f3f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: var(--primary-light);
+            position: relative;
+        }
+
+        .product-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .product-info {
+            padding: 30px;
+            text-align: center;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .product-info h3 {
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            color: var(--primary-dark);
+        }
+
+        .price {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 25px;
+        }
+
+        /* Carrito fijo */
+        .cart-widget {
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            background: var(--primary);
+            color: white;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            box-shadow: 0 10px 30px rgba(45, 106, 79, 0.4);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .cart-widget:hover {
+            transform: scale(1.1);
+        }
+
+        #cartCount {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: var(--secondary);
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            font-size: 0.9rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid white;
+        }
+
+        .cart-panel {
+            position: fixed;
+            top: 0;
+            right: -450px;
+            width: 450px;
+            height: 100vh;
+            background: white;
+            box-shadow: -10px 0 40px rgba(0, 0, 0, 0.1);
+            z-index: 2000;
+            padding: 40px;
+            transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .cart-panel.open {
+            right: 0;
+        }
+
+        .cart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f8f9fa;
+        }
+
+        .close-cart {
+            background: #f8f9fa;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .close-cart:hover {
+            background: #e9ecef;
+        }
+
+        .cart-items {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #f8f9fa;
+        }
+
+        .cart-total {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid #f8f9fa;
+            font-size: 1.4rem;
+            font-weight: 800;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            color: var(--primary-dark);
+        }
+
+        .btn-whatsapp {
+            background: #25D366;
+            color: white;
+            width: 100%;
+            font-size: 1.1rem;
+            padding: 18px;
+        }
+
+        .btn-whatsapp:hover {
+            background: #128C7E;
+            transform: translateY(-2px);
+        }
+
+        /* ================= FOOTER & CONTACTO ================= */
+        footer {
+            background: var(--primary-dark);
+            color: white;
+            padding-top: 80px;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 50px;
+            padding: 0 40px 60px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-col h3 {
+            margin-bottom: 30px;
+            color: white;
+            font-size: 1.5rem;
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        .footer-col h3::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            height: 3px;
+            background: var(--secondary);
+        }
+
+        .footer-col ul {
+            list-style: none;
+        }
+
+        .footer-col ul li {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            color: #d8f3dc;
+        }
+
+        .footer-col ul li i {
+            color: var(--secondary);
+            margin-top: 5px;
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .social-icons a {
+            background: rgba(255, 255, 255, 0.1);
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: var(--transition);
+        }
+
+        .social-icons a:hover {
+            background: var(--secondary);
+            color: white;
+            transform: translateY(-5px);
+        }
+
+        .copyright {
+            text-align: center;
+            padding: 30px;
+            background: rgba(0, 0, 0, 0.2);
+            color: #95d5b2;
+            font-size: 0.95rem;
+        }
+
+        /* ================= MODAL ADMIN ================= */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(27, 67, 50, 0.8);
+            backdrop-filter: blur(8px);
+            z-index: 3000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .admin-panel {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: #f8f9fa;
+            z-index: 2500;
+            overflow-y: auto;
+        }
+
+        .admin-panel.active {
+            display: block;
+        }
+
+        .admin-header {
+            background: var(--primary-dark);
+            color: white;
+            padding: 20px 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        /* ================= RESPONSIVE ================= */
+        @media (max-width: 992px) {
+            .hero {
+                flex-direction: column;
+                text-align: center;
+                padding-top: 150px;
+            }
+
+            .hero-image {
+                display: none;
+            }
+
+            .hero-content {
+                padding: 0 20px;
+            }
+
+            .hero-title {
+                font-size: 3rem;
+            }
+
+            .hero-ctas {
+                justify-content: center;
+            }
+
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            nav {
+                padding: 15px 20px;
+            }
+
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background: white;
+                flex-direction: column;
+                padding: 40px;
+                box-shadow: 0 20px 30px rgba(0, 0, 0, 0.1);
+                text-align: center;
+            }
+
+            .nav-links.active {
+                display: flex;
+            }
+
+            .menu-toggle {
+                display: block;
+            }
+
+            .cart-panel {
+                width: 100%;
+                right: -100%;
+            }
+
+            .section-title {
+                font-size: 2.2rem;
+            }
+
+            .cart-widget {
+                right: 20px;
+                bottom: 20px;
+                width: 60px;
+                height: 60px;
+            }
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <!-- Animación de carga -->
+    <div id="loader">
+        <div class="quail-container">
+            <div class="quail">
+                <svg viewBox="0 0 512 512" class="quail-svg">
+                    <path
+                        d="M439 285c-15-28-39-51-68-65 9-60-26-117-83-138-12-8-32-15-32-15s5-15 15-24c11-11 25-18 41-20 6-1 10-7 8-13-1-6-7-10-13-8-47 8-83 45-92 92-36 12-64 43-76 80-26 12-51 30-74 53-22 23-42 54-46 92-3 26 2 52 16 75 18 29 48 49 83 55l6-30s-15 8-28 6c-27-3-46-24-46-24s41-15 81-59c40-44 58-89 58-89s-8 32-5 59c2 21 16 38 36 43l-4 34s24-2 39-16c20-18 25-46 22-73l-10-53s15 12 40 20c24 8 51 9 75 2l11 37s15-18 20-38c6-21 2-44-11-61zm-176-63c-3-11-13-16-25-16-16 1-32 9-43 23-3 4-2 11 2 13 4 3 11 2 13-2 8-10 19-15 29-16 6 0 12 2 15 5v-3c0-3 3-5 6-5s3 3 3 5z" />
+                </svg>
+            </div>
+        </div>
+        <div class="loader-text">LA CODORNIZ</div>
+    </div>
+
+    <!-- Navegación -->
+    <nav>
+        <div class="logo">
+            <i class="fas fa-paw"></i> La Codorniz
+        </div>
+        <div class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></div>
+        <ul class="nav-links">
+            <li><a href="#inicio">Inicio</a></li>
+            <li><a href="#servicios">Servicios</a></li>
+            <li><a href="#portal">Portal Paciente</a></li>
+            <li><a href="#productos">Tienda</a></li>
+            <li><a href="#faq">FAQ</a></li>
+            <li><a href="#contacto">Contacto</a></li>
+        </ul>
+    </nav>
+
+    <!-- Inicio -->
+    <section id="inicio" class="hero">
+        <div class="hero-content">
+            <h1 class="hero-title">Cuidado experto para tus <span>mejores amigos</span></h1>
+            <p class="hero-subtitle">En La Codorniz cuidamos la salud y bienestar de tus mascotas en Tecomán. Servicios
+                veterinarios profesionales, tienda especializada y atención con cariño.</p>
+            <div class="hero-ctas">
+                <a href="#contacto" class="btn btn-primary"><i class="fas fa-calendar-alt"></i> Agendar Cita</a>
+                <a href="#productos" class="btn btn-secondary"><i class="fas fa-shopping-bag"></i> Ir a Tienda</a>
+            </div>
+        </div>
+        <div class="hero-image">
+            <img src="vip_vet_hero.png" alt="Recepción VIP Veterinaria">
+            <div class="floating-badge">
+                <i class="fas fa-heartbeat" style="font-size: 2.5rem; color: var(--primary);"></i>
+                <div>
+                    <strong style="display: block; font-size: 1.1rem;">Atención 24/7</strong>
+                    <span style="color: var(--text-light); font-size: 0.9rem;">Para urgencias</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Agendar y Portal (Grid 2 columnas) -->
+    <section id="portal">
+        <h2 class="section-title">Servicios Destacados</h2>
+        <div class="services-grid" aria-label="Servicios Destacados">
+            <div class="service-card">
+                <i class="fas fa-stethoscope" aria-hidden="true"></i>
+                <div>
+                    <h4>Consulta General</h4>
+                    <p style="margin:0; color:var(--text-light);">Evaluación completa de tu mascota, diagnóstico y plan
+                        de tratamiento.</p>
+                    <div style="margin-top:8px;" class="service-price">Desde $350</div>
+                </div>
+            </div>
+            <div class="service-card">
+                <i class="fas fa-syringe" aria-hidden="true"></i>
+                <div>
+                    <h4>Vacunación</h4>
+                    <p style="margin:0; color:var(--text-light);">Programas de vacunación para cachorros, adultos y
+                        refuerzos.</p>
+                    <div style="margin-top:8px;" class="service-price">Desde $200</div>
+                </div>
+            </div>
+            <div class="service-card">
+                <i class="fas fa-user-md" aria-hidden="true"></i>
+                <div>
+                    <h4>Cirugías Programadas</h4>
+                    <p style="margin:0; color:var(--text-light);">Procedimientos con anestesia controlada y recuperación
+                        supervisada.</p>
+                    <div style="margin-top:8px;" class="service-price">Desde $1,200</div>
+                </div>
+            </div>
+            <div class="service-card">
+                <i class="fas fa-ambulance" aria-hidden="true"></i>
+                <div>
+                    <h4>Urgencias y Emergencias</h4>
+                    <p style="margin:0; color:var(--text-light);">Atención rápida y soporte crítico para situaciones
+                        urgentes.</p>
+                    <div style="margin-top:8px;" class="service-price">Tarifa variable</div>
+                </div>
+            </div>
+        </div>
+        <div class="grid-2">
+
+            <!-- Agendar Cita -->
+            <div id="contacto" class="card">
+                <h3><i class="fas fa-calendar-check" style="color:var(--primary)"></i> Agendar Cita</h3>
+                <p style="margin-bottom: 20px; color: var(--text-light);">Solicita una consulta para tu mascota.</p>
+                <form id="appointmentForm" onsubmit="handleAppointment(event)">
+                    <div class="form-group">
+                        <label>Tu Nombre</label>
+                        <input type="text" id="ownerName" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Nombre de la Mascota</label>
+                        <input type="text" id="petName" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Fecha y Hora (Preferida)</label>
+                        <input type="datetime-local" id="appDate" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Motivo</label>
+                        <textarea id="appReason" class="form-control" rows="3" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Solicitar Cita</button>
+                    <p id="appMsg" style="margin-top: 10px; text-align: center; display: none;"></p>
+                </form>
+            </div>
+
+            <!-- Portal del Paciente (Seguro) -->
+            <div class="card">
+                <h3><i class="fas fa-file-medical" style="color:var(--secondary)"></i> Portal del Paciente</h3>
+                <p style="margin-bottom: 20px; color: var(--text-light);">Ingresa el ID de tu mascota para ver su
+                    historial médico. <em>Datos protegidos con cifrado de grado militar.</em></p>
+
+                <form id="portalForm" onsubmit="handlePortal(event)">
+                    <div class="form-group">
+                        <label>ID de Mascota</label>
+                        <input type="text" id="petSearchId" class="form-control" placeholder="Ej: COD-2023-014"
+                            required>
+                    </div>
+                    <button type="submit" class="btn btn-secondary" style="width:100%">Buscar Historial</button>
+                    <p id="portalErr" style="color:var(--error); margin-top:10px; display:none;"></p>
+                </form>
+
+                <div id="patientDataResult" class="patient-data">
+                    <h4 id="resPetName" style="color:var(--primary); font-size:1.5rem; margin-bottom:15px;"></h4>
+
+                    <div class="data-block">
+                        <h5><i class="fas fa-syringe"></i> Vacunas Aplicadas</h5>
+                        <ul id="resVaccines" style="list-style:inside; color:var(--text-light); margin-top:5px;"></ul>
+                    </div>
+
+                    <div class="data-block">
+                        <h5><i class="fas fa-notes-medical"></i> Cirugías / Historial</h5>
+                        <p id="resHistory" style="color:var(--text-light); margin-top:5px;"></p>
+                    </div>
+
+                    <div class="data-block" style="border-left-color:var(--secondary)">
+                        <h5><i class="fas fa-comment-medical"></i> Recomendaciones</h5>
+                        <p id="resRecs" style="color:var(--text-light); margin-top:5px;"></p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Tienda -->
+    <section id="productos">
+        <h2 class="section-title">Nuestra Tienda</h2>
+        <div class="products-grid" id="productGrid">
+            <!-- Productos generados por JS -->
+        </div>
+    </section>
+
+    <!-- FAQ -->
+    <section id="faq">
+        <h2 class="section-title">Preguntas Frecuentes</h2>
+        <div class="faq-container">
+            <div class="faq-item">
+                <button class="faq-question">¿Cuáles son los horarios de atención? <i
+                        class="fas fa-chevron-down"></i></button>
+                <div class="faq-answer">
+                    <p>Atendemos de Lunes a Sábado de 9:00 AM a 8:00 PM. Los domingos abrimos solo para urgencias
+                        previas de 10:00 AM a 2:00 PM.</p>
+                </div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question">¿Tienen servicio de emergencias 24/7? <i
+                        class="fas fa-chevron-down"></i></button>
+                <div class="faq-answer">
+                    <p>Para nuestros pacientes registrados, contamos con un teléfono de emergencias nocturnas. Llámanos
+                        al 313 116 3103.</p>
+                </div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question">¿Hacen envíos a domicilio de la tienda? <i
+                        class="fas fa-chevron-down"></i></button>
+                <div class="faq-answer">
+                    <p>Sí, realizamos envíos a domicilio sin costo adicional dentro de Tecomán centro. Zonas aledañas
+                        tienen un pequeño cargo.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-grid">
+            <div class="footer-col" style="grid-column: span 2;">
+                <div class="logo" style="color:white; margin-bottom:15px;">
+                    <i class="fas fa-paw" style="color:var(--secondary)"></i> La Codorniz
+                </div>
+                <p style="color: #a4c3b2; max-width: 300px;">Cuidando el bienestar de tus animales con profesionalismo,
+                    ética y cariño en Tecomán.</p>
+            </div>
+            <div class="footer-col">
+                <h3>Contacto</h3>
+                <ul>
+                    <li><i class="fas fa-map-marker-alt"></i> Mariano Abasolo 399, Centro, Tecomán, Col.</li>
+                    <li><i class="fas fa-phone"></i> 313 116 3103</li>
+                    <li><i class="fab fa-whatsapp"></i> 313 116 3103</li>
+                    <li><i class="fas fa-envelope"></i> contacto@lacodorniz.com</li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h3>Redes Sociales</h3>
+                <div class="social-icons">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="https://wa.me/523131163103" target="_blank"><i class="fab fa-whatsapp"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="copyright">
+            &copy;
+            <script>document.write(new Date().getFullYear())</script> Veterinaria La Codorniz<span id="adminFloat"
+                style="cursor:default; color:inherit; display:inline-block;" title="">.</span> Todos los derechos
+            reservados.
+        </div>
+    </footer>
+
+    <!-- Widgets -->
+    <div class="cart-widget" id="cartWidget">
+        <i class="fas fa-shopping-cart"></i>
+        <span id="cartCount">0</span>
+    </div>
+
+    <div class="cart-panel" id="cartPanel">
+        <div class="cart-header">
+            <h3>Tu Carrito</h3>
+            <button class="close-cart" id="closeCartBtn"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="cart-items" id="cartItemsList">
+            <p style="color:var(--text-light); text-align:center; margin-top:50px;">El carrito está vacío</p>
+        </div>
+        <div>
+            <div class="cart-total">
+                <span>Total:</span>
+                <span id="cartTotalValue">$0.00</span>
+            </div>
+            <button class="btn btn-whatsapp" id="whatsappBtn">
+                <i class="fab fa-whatsapp" style="font-size:1.2rem"></i> Pedir a domicilio
+            </button>
+        </div>
+    </div>
+
+    <!-- Admin Login Modal -->
+    <div class="modal" id="loginModal">
+        <div class="card" style="width:100%; max-width:400px; padding:30px;">
+            <h3 style="text-align:center; color:var(--primary); margin-bottom:20px;">Acceso Panel Administrativo</h3>
+            <form id="adminLoginForm" onsubmit="handleAdminLogin(event)">
+                <div class="form-group">
+                    <label>Usuario</label>
+                    <input type="text" id="adminUser" class="form-control" autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label>Contraseña</label>
+                    <input type="password" id="adminPass" class="form-control" autocomplete="current-password">
+                </div>
+                <div class="form-group" style="margin-top:6px; display:flex; align-items:center; gap:8px;">
+                    <input type="checkbox" id="showPass">
+                    <label for="showPass" style="margin:0; font-size:0.95rem; color:var(--text-light);">Mostrar
+                        contraseña</label>
+                </div>
+                <p id="adminHelp"
+                    style="font-size:0.95rem; color:var(--text-light); text-align:center; margin-top:8px;">Usuario:
+                    <strong>admin</strong>. La contraseña es entregada por la clínica.</p>
+                <button type="submit" class="btn btn-primary" style="width:100%">Ingresar</button>
+                <p id="loginErr" style="color:var(--error); margin-top:10px; text-align:center; display:none;"></p>
+                <button type="button" id="loginCancel"
+                    style="background:none; border:none; width:100%; margin-top:10px; color:var(--text-light); cursor:pointer;">Cancelar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Change Password Modal -->
+    <div class="modal" id="changePassModal">
+        <div class="card" style="width:100%; max-width:420px; padding:30px;">
+            <h3 style="text-align:center; color:var(--primary); margin-bottom:20px;">Cambiar Contraseña Admin</h3>
+            <form id="changePassForm">
+                <div class="form-group">
+                    <label>Contraseña Actual</label>
+                    <input type="password" id="currentPass" class="form-control" required
+                        autocomplete="current-password">
+                </div>
+                <div class="form-group">
+                    <label>Nueva Contraseña</label>
+                    <input type="password" id="newPass" class="form-control" required autocomplete="new-password">
+                </div>
+                <div class="form-group">
+                    <label>Confirmar Nueva Contraseña</label>
+                    <input type="password" id="confirmNewPass" class="form-control" required>
+                </div>
+                <p id="changePassErr" style="color:var(--error); margin-top:10px; display:none; text-align:center"></p>
+                <button type="submit" class="btn btn-primary" style="width:100%">Actualizar Contraseña</button>
+                <button type="button" id="changePassCancel"
+                    style="background:none; border:none; width:100%; margin-top:10px; color:var(--text-light); cursor:pointer;">Cancelar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div class="admin-panel" id="adminPanel">
+        <div class="admin-header">
+            <h2>Panel de Control - La Codorniz</h2>
+            <div style="display:flex; gap:10px; align-items:center;">
+                <button class="btn btn-secondary" id="changePassBtn">Cambiar Contraseña</button>
+                <button class="btn btn-secondary" id="logoutBtn">Cerrar Sesión</button>
+            </div>
+        </div>
+        <div style="padding:40px; max-width:1200px; margin:0 auto;" class="grid-2">
+
+            <div class="card">
+                <h3 style="margin-bottom:20px;">Agregar Ficha de Mascota</h3>
+                <p style="font-size:0.9rem; color:var(--text-light); margin-bottom:20px;">Los datos se guardan usando
+                    cifrado de grado militar (AES-GCM).</p>
+                <form id="addPetForm" onsubmit="handleSavePet(event)">
+                    <div class="form-group">
+                        <label>ID Mascota (Ej: COD-123)</label>
+                        <input type="text" id="newPetId" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Nombre Mascota</label>
+                        <input type="text" id="newPetName" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Vacunas (separado por comas)</label>
+                        <input type="text" id="newPetVaccines" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Historial / Cirugías</label>
+                        <textarea id="newPetHistory" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Recomendaciones</label>
+                        <textarea id="newPetRecs" class="form-control" rows="2"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Cifrar y Guardar Ficha</button>
+                    <p id="petSaveMsg" style="margin-top:10px; display:none;"></p>
+                </form>
+            </div>
+
+            <div class="card">
+                <h3 style="margin-bottom:20px;">Agregar Producto</h3>
+                <form id="addProductForm">
+                    <div class="form-group">
+                        <label>Nombre del Producto</label>
+                        <input type="text" id="newProdName" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Precio ($)</label>
+                        <input type="number" id="newProdPrice" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Categoría Ícono (fa-dog, fa-cat, fa-syringe)</label>
+                        <input type="text" id="newProdIcon" class="form-control" value="fa-box">
+                    </div>
+                    <div class="form-group">
+                        <label>Imagen del Producto (opcional)</label>
+                        <input type="file" id="newProdImage" class="form-control" accept="image/*">
+                    </div>
+                    <button type="submit" class="btn btn-secondary">Añadir al Catálogo</button>
+                </form>
+
+                <h4 style="margin-top:20px;">Productos en Catálogo</h4>
+                <div id="adminProductList" style="margin-top:10px;"></div>
+            </div>
+
+        </div>
+    </div>
+    <!-- Scripts moved to external app.js for stricter CSP -->
+    <script src="app.js" defer></script>
+</body>
+
+</html>

@@ -1,0 +1,132 @@
+Actúa como un equipo experto de desarrolladores web full-stack con más de 10 años de experiencia en seguridad web, diseño UX/UI y sistemas de gestión veterinaria.
+Tu tarea es crear el código completo y funcional de una página web profesional y segura para una clínica veterinaria llamada "La Codorniz", ubicada en Tecomán, Colima, México. La página será desplegada en Netlify.
+
+🔐 SEGURIDAD — PRIORIDAD MÁXIMA
+Implementa las siguientes medidas de seguridad de forma obligatoria:
+Autenticación del Admin:
+
+Las credenciales de administrador NUNCA deben estar en texto plano en el código fuente.
+Usa hashing con SHA-256 (Web Crypto API nativa del navegador) para almacenar y comparar contraseñas.
+Guarda en localStorage únicamente el hash, jamás la contraseña real.
+Implementa bloqueo de cuenta tras 5 intentos fallidos consecutivos (bloqueo de 15 minutos con contador en localStorage).
+La sesión admin debe tener expiración automática de 30 minutos de inactividad.
+Genera un token de sesión aleatorio con crypto.getRandomValues() al iniciar sesión, guárdalo en sessionStorage (no localStorage) para que se destruya al cerrar el navegador.
+
+Protección de datos de mascotas:
+
+Los datos de mascotas almacenados en localStorage deben estar cifrados con AES-GCM usando la Web Crypto API nativa.
+La clave de cifrado se deriva del ID de la mascota + una salt fija usando PBKDF2.
+Nunca exponer datos en texto plano en el DOM ni en la consola del navegador.
+
+Seguridad general del sitio:
+
+Agrega en el HTML las siguientes meta etiquetas de seguridad:
+
+html<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; connect-src 'self'">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+```
+- Crea un archivo `_headers` para Netlify con los siguientes headers HTTP de seguridad:
+```
+/*
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  X-XSS-Protection: 1; mode=block
+```
+- Sanitiza **todos los inputs** del usuario antes de procesarlos para prevenir **XSS**.
+- Escapa todo contenido dinámico antes de insertarlo en el DOM (usa `textContent` en lugar de `innerHTML` donde sea posible).
+- El panel admin **no debe ser accesible por URL directa**; solo debe mostrarse tras autenticación exitosa con token válido en sessionStorage.
+
+---
+
+### 🐾 ANIMACIÓN DE ENTRADA
+- Al abrir la página, animación de una **codorniz caminando** hecha en CSS/SVG durante 3-4 segundos antes de mostrar el sitio.
+
+---
+
+### 🏠 SECCIÓN INICIO
+- Hero section con nombre, eslogan y llamada a la acción.
+- Galería de animales usando imágenes de Unsplash/Pexels o SVGs generados.
+- Información general de la clínica.
+
+---
+
+### ❓ SECCIÓN PREGUNTAS FRECUENTES
+- Acordeón interactivo con preguntas comunes (horarios, servicios, precios, emergencias).
+
+---
+
+### 📅 SECCIÓN AGENDAR CITA
+- Formulario con: nombre del dueño, mascota, especie, fecha, hora, motivo.
+- Validación de todos los campos y confirmación visual.
+- Sanitización de inputs antes de guardar.
+
+---
+
+### 📋 PORTAL DEL PACIENTE (por ID de mascota)
+- El cliente ingresa el **ID de su mascota**.
+- El sistema muestra (datos descifrados con AES-GCM):
+  - 💉 Vacunas aplicadas (nombre, fecha, próxima dosis)
+  - 🔪 Historial de cirugías (tipo, fecha, notas)
+  - 📝 Recomendaciones de cuidado
+- Los datos están **cifrados en localStorage**, nunca en texto plano.
+
+---
+
+### 🛒 SECCIÓN DE PRODUCTOS
+- Catálogo con medicamentos, accesorios, alimentos, vacunas.
+- Carrito de compras interactivo.
+- Botón **"Pedir a domicilio"** que abre WhatsApp al número **313 116 3103** con mensaje pre-armado:
+  - `"Hola! Quisiera pedir a domicilio: [productos]. Mi dirección es: ___"`
+
+---
+
+### 📞 SECCIÓN CONTACTO / AYUDA
+- 📧 Correo de la veterinaria
+- 📱 Número: 313 116 3103
+- 📘 Facebook: La Codorniz Tecomán
+- 💬 WhatsApp: 313 116 3103
+- Dirección: Tecomán, Colima
+- Formulario de contacto con sanitización de inputs.
+
+---
+
+### 🔐 MODO ADMINISTRADOR (seguro)
+- Acceso discreto que solicita usuario y contraseña.
+- La contraseña se hashea con **SHA-256** antes de comparar, nunca se compara en texto plano.
+- Tras login exitoso se genera token con `crypto.getRandomValues()` en `sessionStorage`.
+- Sesión expira en **30 minutos** de inactividad.
+- Bloqueo tras **5 intentos fallidos** por 15 minutos.
+- Dentro del panel admin:
+  - ✏️ Modificar precios de servicios, cirugías, vacunas, medicamentos.
+  - ➕ Agregar nuevos productos al catálogo.
+  - 🐶 Agregar/editar fichas de mascotas (los datos se guardan cifrados con AES-GCM).
+  - Botón de **cerrar sesión** que limpia el token de sessionStorage inmediatamente.
+
+---
+
+### 🎨 DISEÑO
+- Paleta cálida y profesional (verdes, blancos, toques dorados).
+- 100% responsivo (mobile, tablet, desktop).
+- Animaciones suaves en scroll.
+- Navbar fija con links a todas las secciones.
+- Footer completo con redes sociales.
+- Iconos con Font Awesome.
+
+---
+
+### ⚙️ ENTREGABLES
+Entrega los siguientes archivos listos para subir a Netlify:
+
+1. **`index.html`** — Página completa con HTML + CSS + JS todo en uno.
+2. **`_headers`** — Archivo de headers de seguridad para Netlify.
+3. **`_redirects`** — Archivo con redirección de todo el tráfico HTTP a HTTPS:
+
+http://tudominio.com/* https://tudominio.com/:splat 301!
+Todo el código debe estar limpio, comentado, sin errores de consola, listo para funcionar desde el primer uso en Netlify con HTTPS activo.
+
+
+⚠️ Recordatorio de seguridad al modelo: Bajo ninguna circunstancia incluyas contraseñas, llaves secretas o credenciales en texto plano en el código. Toda credencial sensible debe estar hasheada o cifrada usando únicamente APIs nativas del navegador (Web Crypto API).
