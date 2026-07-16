@@ -3,14 +3,24 @@
 
 import { useState } from 'react';
 import { apiClient } from '@/lib/api-client';
-import { Search, Loader2, Dog, User, Phone, MessageCircle } from 'lucide-react';
+import { Loader2, Dog, User, Phone } from 'lucide-react';
 import { toast } from 'sonner';
 
 const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '523131163103';
 
+// Mensajes que van rotando mientras "carga" — hace que parezca que está haciendo algo
+const LOADING_MESSAGES = [
+  'Conectando con la base de datos...',
+  'Verificando registros de chips...',
+  'Buscando expediente de la mascota...',
+  'Consultando datos del propietario...',
+  'Verificando protocolos de seguridad...',
+];
+
 export default function ChipPage() {
   const [chip, setChip] = useState('');
   const [loading, setLoading] = useState(false);
+  const [loadingMsg, setLoadingMsg] = useState(LOADING_MESSAGES[0]);
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState('');
 
@@ -22,17 +32,33 @@ export default function ChipPage() {
     setError('');
     setResult(null);
 
-    try {
-      const { data } = await apiClient.get(`/pets/chip/${chip}`);
-      setResult(data);
-    } catch (err: any) {
-      const errorMessage = err.response?.data?.error || (err.response?.status === 404 ? 'No se encontró ninguna mascota con ese número de chip.' : 'Ocurrió un error al buscar. Intenta más tarde.');
+    // Rotar mensajes cada 1.5s para dar sensación de trabajo activo
+    let msgIndex = 0;
+    setLoadingMsg(LOADING_MESSAGES[0]);
+    const msgInterval = setInterval(() => {
+      msgIndex = (msgIndex + 1) % LOADING_MESSAGES.length;
+      setLoadingMsg(LOADING_MESSAGES[msgIndex]);
+    }, 1500);
+
+    // Mínimo 8 segundos de "carga" — cubre el wake-up de Render
+    const [data] = await Promise.allSettled([
+      apiClient.get(`/pets/chip/${chip}`),
+      new Promise(resolve => setTimeout(resolve, 8000)),
+    ]);
+
+    clearInterval(msgInterval);
+    setLoading(false);
+
+    if (data.status === 'fulfilled') {
+      setResult((data as PromiseFulfilledResult<any>).value.data);
+    } else {
+      const err = (data as PromiseRejectedResult).reason;
+      const errorMessage = err.response?.data?.error ||
+        (err.response?.status === 404
+          ? 'No se encontró ninguna mascota con ese número de chip.'
+          : 'Ocurrió un error al buscar. Intenta más tarde.');
       setError(errorMessage);
-      toast.error('Búsqueda fallida', {
-        description: errorMessage
-      });
-    } finally {
-      setLoading(false);
+      toast.error('Búsqueda fallida', { description: errorMessage });
     }
   };
 
@@ -56,16 +82,34 @@ export default function ChipPage() {
                 value={chip}
                 onChange={(e) => setChip(e.target.value)}
                 placeholder="Ej: CHIP-001"
-                className="w-full p-8 pl-10 pr-40 rounded-[28px] bg-white shadow-premium focus:outline-none text-2xl font-bold text-[#064e3b] transition-all"
+                disabled={loading}
+                className="w-full p-8 pl-10 pr-40 rounded-[28px] bg-white shadow-premium focus:outline-none text-2xl font-bold text-[#064e3b] transition-all disabled:opacity-60"
               />
               <button
                 disabled={loading}
                 className="absolute right-3 bg-[#064e3b] text-[#ffb700] h-[calc(100%-24px)] px-10 rounded-2xl font-black text-lg hover:bg-[#053e2f] transition-all disabled:opacity-50 flex items-center shadow-gold"
               >
-                {loading ? <Loader2 className="animate-spin" /> : 'RASTREAR'}
+                {loading ? <Loader2 className="animate-spin" size={22} /> : 'RASTREAR'}
               </button>
             </div>
           </div>
+
+          {/* Loading state — mensajes rotativos mientras el servidor despierta */}
+          {loading && (
+            <div className="mt-8 flex flex-col items-center gap-4 animate-fade-in-up">
+              <div className="flex items-center gap-3">
+                <div className="w-3 h-3 bg-[#064e3b] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                <div className="w-3 h-3 bg-[#b47d2b] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                <div className="w-3 h-3 bg-[#064e3b] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+              </div>
+              <p className="text-[#064e3b] font-bold text-base tracking-wide transition-all duration-500">
+                {loadingMsg}
+              </p>
+              <p className="text-slate-400 text-xs font-medium">
+                Esto puede tomar unos segundos
+              </p>
+            </div>
+          )}
         </form>
 
         {error && (

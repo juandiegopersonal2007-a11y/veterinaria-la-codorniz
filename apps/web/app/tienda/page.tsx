@@ -30,9 +30,13 @@ export default function TiendaPage() {
   const [cartOpen, setCartOpen] = useState(false);
 
   useEffect(() => {
-    apiClient
-      .get('/products')
-      .then((res) => setProducts(res.data))
+    // Mínimo 3s de skeleton en la primera carga — cubre wake-up de Render
+    const minDelay = new Promise(resolve => setTimeout(resolve, 3000));
+    Promise.all([
+      apiClient.get('/products').then(res => res.data),
+      minDelay,
+    ])
+      .then(([data]) => setProducts(data))
       .catch(() => setProducts([]))
       .finally(() => setLoading(false));
   }, []);
