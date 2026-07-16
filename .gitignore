@@ -125,3 +125,14 @@ temp/
 Thumbs.db
 ehthumbs.db
 Desktop.ini
+
+# Archivos personales / documentos que no van al repo
+*.pdf
+*.docx
+*.crt
+prod-ca-2021.crt
+"- Correo Electrónico  admin@veterin.txt"
+prompt_migracion_completado.md
+pruevas\ waldos.docx
+carta_factura_waldos_final\ \(1\).pdf
+vip_vet_hero.png

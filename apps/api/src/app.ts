@@ -1,14 +1,28 @@
 // apps/api/src/app.ts
+import path from 'path';
+import dotenv from 'dotenv';
+
+// Carga envs: raíz del monorepo (.env.local / .env) y luego apps/api/.env
+dotenv.config({ path: path.resolve(__dirname, '../../../.env.local') });
+dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
+
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 const xss = require('xss-clean');
-import { PrismaClient } from '@prisma/client';
 import winston from 'winston';
+import { prisma } from './lib/prisma';
 
-// Logger setup
+import authRoutes from './routes/auth.routes';
+import clientRoutes from './routes/client.routes';
+import petRoutes from './routes/pet.routes';
+import appointmentRoutes from './routes/appointment.routes';
+import dashboardRoutes from './routes/dashboard.routes';
+import productRoutes from './routes/product.routes';
+
 const logger = winston.createLogger({
   level: 'info',
   format: winston.format.json(),
@@ -24,39 +38,78 @@ if (process.env.NODE_ENV !== 'production') {
   }));
 }
 
-import authRoutes from './routes/auth.routes';
-import clientRoutes from './routes/client.routes';
-import petRoutes from './routes/pet.routes';
-import appointmentRoutes from './routes/appointment.routes';
-import dashboardRoutes from './routes/dashboard.routes';
-
-const prisma = new PrismaClient();
 const app = express();
 
-// Security Middlewares
 app.use(helmet());
-app.use(cors());
-app.use(express.json());
+app.use(cors({
+  origin: process.env.FRONTEND_URL || true,
+  credentials: true,
+}));
+// 10 MB: permite subir fotos en base64 sin el corte del límite default (100kb)
+app.use(express.json({ limit: '10mb' }));
 app.use(xss());
 app.use(morgan('dev'));
 
-// Rate Limiting
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+  windowMs: 15 * 60 * 1000,
+  max: 100,
 });
 app.use(limiter);
 
-// Auth Routes
 app.use('/api/auth', authRoutes);
 
-// Protected Routes
-app.use('/api/clients', clientRoutes);
-app.use('/api/pets', petRoutes);
-app.use('/api/appointments', appointmentRoutes);
-app.use('/api/dashboard', dashboardRoutes);
+app.post('/api/appointments/public', async (req: Request, res: Response) => {
+  try {
+    const { name, petName, phone, service } = req.body;
 
-// Public Routes (Buscador de chip)
+    let client = await prisma.client.findFirst({
+      where: { phone: phone }
+    });
+
+    if (!client) {
+      client = await prisma.client.create({
+        data: {
+          name: name,
+          phone: phone,
+        }
+      });
+    }
+
+    let pet = await prisma.pet.findFirst({
+      where: {
+        name: petName,
+        clientId: client.id
+      }
+    });
+
+    if (!pet) {
+      pet = await prisma.pet.create({
+        data: {
+          name: petName,
+          species: 'Desconocida',
+          clientId: client.id
+        }
+      });
+    }
+
+    const appointment = await prisma.appointment.create({
+      data: {
+        clientId: client.id,
+        petId: pet.id,
+        date: new Date(),
+        service: service.toUpperCase(),
+        status: 'PENDING',
+        notes: 'Solicitada desde el formulario web'
+      }
+    });
+
+    return res.status(201).json(appointment);
+  } catch (error) {
+    logger.error('Error creating public appointment:', error);
+    return res.status(500).json({ error: 'Error al registrar la cita en la base de datos' });
+  }
+});
+
 app.get('/api/pets/chip/:chipNumber', async (req: Request, res: Response) => {
   try {
     const { chipNumber } = req.params;
@@ -76,7 +129,6 @@ app.get('/api/pets/chip/:chipNumber', async (req: Request, res: Response) => {
       return res.status(404).json({ error: 'Mascota no encontrada' });
     }
 
-    // Return sanitized data for privacy
     const sanitizedClientName = pet.client.name.split(' ')[0] + ' ***';
     const sanitizedClientPhone = pet.client.phone.slice(0, -4) + '****';
 
@@ -93,13 +145,22 @@ app.get('/api/pets/chip/:chipNumber', async (req: Request, res: Response) => {
   }
 });
 
-// Health check
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok' });
+app.use('/api/clients', clientRoutes);
+app.use('/api/pets', petRoutes);
+app.use('/api/appointments', appointmentRoutes);
+app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/products', productRoutes);
+
+app.get('/api/health', async (_req, res) => {
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    res.json({ status: 'ok', db: 'connected' });
+  } catch {
+    res.status(503).json({ status: 'error', db: 'disconnected' });
+  }
 });
 
-// Error handling middleware
-app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
   logger.error(err.stack);
   res.status(500).send('¡Algo salió mal!');
 });

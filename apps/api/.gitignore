@@ -1,0 +1,16 @@
+# Secrets — never commit these
+.env
+.env.local
+.env.*.local
+
+# Build output
+dist/
+
+# Logs
+*.log
+combined.log
+error.log
+
+# DB local
+prisma/dev.db
+prisma/dev.db-journal

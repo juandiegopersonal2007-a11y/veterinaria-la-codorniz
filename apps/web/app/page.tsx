@@ -1,150 +1,254 @@
-// apps/web/app/page.tsx
-import { ArrowRight, CheckCircle2, MapPin, Phone, Mail, Clock } from 'lucide-react';
+'use client';
+
+import { ArrowRight, CheckCircle2, MapPin, Phone, Mail, Clock, ShieldCheck, Heart, Star, Activity, Stethoscope, Scissors, Syringe } from 'lucide-react';
 import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { useEffect, useState } from 'react';
 
 export default function Home() {
+  const [splashVisible, setSplashVisible] = useState(true);
+  const [splashFading, setSplashFading] = useState(false);
+
+  useEffect(() => {
+    // Check if the user has already seen the splash in this session
+    if (typeof window !== 'undefined' && sessionStorage.getItem('splash-shown')) {
+      setSplashVisible(false);
+      return;
+    }
+    // Start fading out after the video has played enough (3.5s)
+    const fadeTimer = setTimeout(() => {
+      setSplashFading(true);
+    }, 3500);
+    // Remove splash completely after fade animation (500ms)
+    const removeTimer = setTimeout(() => {
+      setSplashVisible(false);
+      sessionStorage.setItem('splash-shown', '1');
+    }, 4000);
+    return () => {
+      clearTimeout(fadeTimer);
+      clearTimeout(removeTimer);
+    };
+  }, []);
+
   return (
     <div className="flex flex-col min-h-screen">
-      {/* Navigation */}
-      <nav className="fixed w-full z-40 bg-white/80 backdrop-blur-md border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16 items-center">
-            <div className="flex items-center gap-2">
-              <span className="text-2xl font-bold text-green-700">La Codorniz</span>
-            </div>
-            <div className="hidden md:flex items-center space-x-8">
-              <Link href="/" className="text-sm font-medium hover:text-green-600 transition">Inicio</Link>
-              <Link href="/servicios" className="text-sm font-medium hover:text-green-600 transition">Servicios</Link>
-              <Link href="/chip" className="text-sm font-medium hover:text-green-600 transition">Buscador Chip</Link>
-              <Link href="/contacto" className="text-sm font-medium hover:text-green-600 transition">Contacto</Link>
-              <Link href="/ayuda" className="text-sm font-medium hover:text-green-600 transition">Ayuda</Link>
-              <Link href="/admin/dashboard" className="bg-green-600 text-white px-4 py-2 rounded-full text-sm font-semibold hover:bg-green-700 transition">Panel Admin</Link>
-            </div>
+      {/* ── Splash / Welcome Screen ── */}
+      {splashVisible && (
+        <div
+          className={`fixed inset-0 z-[9999] bg-[#064e3b] flex items-center justify-center transition-opacity duration-500 ${splashFading ? 'opacity-0' : 'opacity-100'}`}
+          onClick={() => { setSplashFading(true); setTimeout(() => { setSplashVisible(false); sessionStorage.setItem('splash-shown', '1'); }, 500); }}
+        >
+          <video
+            src="/presentacion.mp4"
+            autoPlay
+            muted
+            playsInline
+            className="w-full h-full object-cover"
+            onEnded={() => { setSplashFading(true); setTimeout(() => { setSplashVisible(false); sessionStorage.setItem('splash-shown', '1'); }, 500); }}
+          />
+          {/* Skip hint */}
+          <div className={`absolute bottom-10 left-1/2 -translate-x-1/2 text-white/60 text-sm font-bold tracking-widest uppercase transition-opacity duration-700 ${splashFading ? 'opacity-0' : 'opacity-100'}`}>
+            Toca para continuar
           </div>
         </div>
-      </nav>
-
+      )}
       {/* Hero Section */}
-      <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 bg-green-50 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="max-w-2xl">
-            <h1 className="text-5xl lg:text-7xl font-extrabold text-gray-900 leading-tight mb-6">
-              Cuidamos a tu mascota <span className="text-green-600">como familia</span>
-            </h1>
-            <p className="text-xl text-gray-600 mb-10 leading-relaxed">
-              En Veterinaria La Codorniz brindamos atención médica de alta calidad, estética y bienestar integral para tus mejores amigos en Tecomán.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Link href="/contacto" className="flex items-center justify-center bg-orange-500 text-white px-8 py-4 rounded-full text-lg font-bold hover:bg-orange-600 transition-all shadow-lg hover:shadow-orange-200">
-                Agendar cita
-                <ArrowRight className="ml-2" size={20} />
-              </Link>
-              <Link href="/servicios" className="flex items-center justify-center bg-white text-green-700 border-2 border-green-600 px-8 py-4 rounded-full text-lg font-bold hover:bg-green-50 transition-all">
-                Nuestros servicios
-              </Link>
+      <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 bg-[#fdfcfb] overflow-hidden">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10 relative z-10">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            <div className="max-w-2xl animate-fade-in-up">
+              <div className="inline-flex items-center gap-2 bg-[#ffb700]/10 text-[#ffb700] px-4 py-2 rounded-full text-xs font-black tracking-[0.2em] uppercase mb-8 border border-[#ffb700]/20 shadow-sm">
+                <Star size={14} fill="currentColor" />
+                Excelencia Veterinaria en Tecomán
+              </div>
+              <h1 className="text-6xl lg:text-8xl font-black text-[#064e3b] leading-[0.9] mb-8 tracking-tighter">
+                Cuidamos a tu mascota <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#b47d2b] to-[#e9c46a]">como familia</span>
+              </h1>
+              <p className="text-xl text-slate-500 mb-12 leading-relaxed font-medium max-w-xl">
+                En <span className="text-[#064e3b] font-bold">La Codorniz</span> fusionamos medicina de vanguardia con un trato humano excepcional.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-6">
+                <Link href="/contacto">
+                  <button className="h-16 px-10 rounded-2xl bg-[#064e3b] hover:bg-[#053e2f] text-white text-lg font-black shadow-2xl shadow-emerald-900/20 transition-all hover:scale-105 active:scale-95 group flex items-center justify-center">
+                    AGENDAR CITA
+                    <ArrowRight className="ml-2 group-hover:translate-x-2 transition-transform" size={22} />
+                  </button>
+                </Link>
+                <Link href="/servicios">
+                  <button className="h-16 px-10 rounded-2xl border-2 border-[#064e3b] text-[#064e3b] text-lg font-black hover:bg-emerald-50 transition-all flex items-center justify-center">
+                    VER SERVICIOS
+                  </button>
+                </Link>
+              </div>
+            </div>
+            <div className="relative animate-fade-in-right">
+              <div className="absolute -inset-1 bg-gradient-to-r from-[#ffb700] to-[#064e3b] rounded-[60px] blur-2xl opacity-10 animate-pulse"></div>
+              <div className="relative bg-white p-4 rounded-[56px] shadow-2xl border border-slate-50 overflow-hidden group">
+                <video 
+                  src="/presentacion.mp4" 
+                  autoPlay 
+                  loop 
+                  muted 
+                  playsInline
+                  className="w-full h-auto rounded-[42px] object-cover transform group-hover:scale-105 transition-transform duration-1000"
+                />
+                <div className="absolute bottom-8 left-8 right-8 bg-white/90 backdrop-blur-md p-6 rounded-3xl border border-white/50 shadow-xl">
+                  <div className="flex items-center gap-4">
+                    <div className="flex -space-x-3">
+                      {[1,2,3].map(i => (
+                        <div key={i} className="w-10 h-10 rounded-full border-2 border-white bg-emerald-100 flex items-center justify-center text-[10px] font-bold text-[#064e3b]">
+                          {String.fromCharCode(64 + i)}
+                        </div>
+                      ))}
+                    </div>
+                    <div>
+                      <p className="text-xs font-black text-[#064e3b] uppercase tracking-widest">+500 Clientes Satisfechos</p>
+                      <p className="text-[10px] text-slate-500 font-bold">Confían en nuestra excelencia</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-        {/* Background decorative element */}
-        <div className="absolute top-0 right-0 -mr-20 -mt-20 w-[600px] h-[600px] bg-green-200/20 rounded-full blur-3xl"></div>
+        <div className="absolute top-0 right-0 -mr-20 -mt-20 w-[800px] h-[800px] bg-emerald-50/50 rounded-full blur-[120px] -z-10"></div>
+        <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-[500px] h-[500px] bg-[#ffb700]/5 rounded-full blur-[100px] -z-10"></div>
       </section>
 
-      {/* Services Highlights */}
-      <section className="py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center mb-16">
-          <h2 className="text-3xl lg:text-5xl font-bold text-gray-900 mb-4">Servicios Destacados</h2>
-          <p className="text-gray-600 max-w-2xl mx-auto">Ofrecemos todo lo que tu mascota necesita para una vida saludable y feliz.</p>
+      <section className="py-32 bg-white relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10 relative z-10">
+          <div className="grid lg:grid-cols-2 gap-24 items-center">
+            <div className="order-2 lg:order-1 relative animate-fade-in-right">
+              <div className="absolute -inset-8 bg-emerald-50 rounded-[64px] blur-2xl -z-10"></div>
+              <div className="grid grid-cols-2 gap-6">
+                <div className="space-y-6 pt-12">
+                  <div className="bg-white p-8 rounded-[40px] shadow-premium border border-slate-50 transform hover:-translate-y-2 transition-all duration-500">
+                    <div className="w-14 h-14 bg-emerald-900 text-[#ffb700] rounded-2xl flex items-center justify-center mb-6 shadow-gold">
+                      <CheckCircle2 size={28} />
+                    </div>
+                    <h4 className="text-xl font-black text-[#064e3b] mb-2 tracking-tight">Médicos Expertos</h4>
+                    <p className="text-sm text-slate-500 font-medium">Contamos con especialistas certificados.</p>
+                  </div>
+                  <div className="bg-[#064e3b] p-8 rounded-[40px] shadow-2xl transform hover:-translate-y-2 transition-all duration-500">
+                    <div className="w-14 h-14 bg-[#ffb700]/20 text-[#ffb700] rounded-2xl flex items-center justify-center mb-6 border border-[#ffb700]/20">
+                      <Clock size={28} />
+                    </div>
+                    <h4 className="text-xl font-black text-white mb-2 tracking-tight">Atención 24/7</h4>
+                    <p className="text-sm text-emerald-100/60 font-medium">Protocolos de urgencia inmediata.</p>
+                  </div>
+                </div>
+                <div className="space-y-6">
+                  <div className="bg-emerald-50 p-8 rounded-[40px] shadow-inner border border-emerald-100 transform hover:-translate-y-2 transition-all duration-500">
+                    <div className="w-14 h-14 bg-white text-emerald-700 rounded-2xl flex items-center justify-center mb-6 shadow-sm">
+                      <MapPin size={28} />
+                    </div>
+                    <h4 className="text-xl font-black text-[#064e3b] mb-2 tracking-tight">Tecnología Top</h4>
+                    <p className="text-sm text-slate-500 font-medium">Equipamiento médico de última generación.</p>
+                  </div>
+                  <div className="bg-white p-8 rounded-[40px] shadow-premium border border-slate-50 transform hover:-translate-y-2 transition-all duration-500">
+                    <div className="w-14 h-14 bg-[#ffb700] text-[#064e3b] rounded-2xl flex items-center justify-center mb-6 shadow-gold">
+                      <Mail size={28} />
+                    </div>
+                    <h4 className="text-xl font-black text-[#064e3b] mb-2 tracking-tight">Trato Humano</h4>
+                    <p className="text-sm text-slate-500 font-medium">Tu mascota es nuestra familia.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="order-1 lg:order-2 animate-fade-in-up">
+              <div className="inline-flex items-center gap-2 bg-[#b47d2b]/10 text-[#b47d2b] px-4 py-2 rounded-full text-xs font-black tracking-widest uppercase mb-6 border border-[#b47d2b]/20">
+                ⭐ Nuestra Misión de Excelencia ⭐
+              </div>
+              <h2 className="text-5xl lg:text-7xl font-black text-[#064e3b] mb-8 tracking-tighter leading-none">
+                Donde la salud y el amor <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#b47d2b] to-[#e9c46a]">se encuentran</span>
+              </h2>
+              <p className="text-xl text-slate-500 mb-10 leading-relaxed font-medium">
+                En La Codorniz no solo tratamos síntomas, cuidamos vidas. Nuestra clínica en Tecomán se distingue por ofrecer un ambiente profesional y cálido.
+              </p>
+              <ul className="space-y-6 mb-12">
+                {[
+                  'Consulta General y especialidades',
+                  'Estética Canina y Baños Médicos',
+                  'Vacunación y Desparasitación',
+                  'Cirugías menores y programadas',
+                  'Urgencias y emergencias',
+                ].map((item, i) => (
+                  <li key={i} className="flex items-center gap-4 text-[#064e3b] font-bold text-lg group">
+                    <div className="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center group-hover:bg-[#ffb700] transition-colors">
+                      <CheckCircle2 size={14} className="group-hover:text-[#064e3b]" />
+                    </div>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+              <Link href="/servicios">
+                <button className="text-[#064e3b] font-black text-lg p-0 hover:bg-transparent hover:text-[#b47d2b] transition-all flex items-center gap-2 group">
+                  Explorar catálogo completo <ArrowRight size={22} className="group-hover:translate-x-2 transition-transform" />
+                </button>
+              </Link>
+            </div>
+          </div>
         </div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid md:grid-cols-3 gap-8">
+      </section>
+
+      <section className="py-32 bg-slate-50/50">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10 text-center mb-20 animate-fade-in-up">
+          <h2 className="text-4xl lg:text-6xl font-black text-[#064e3b] mb-6 tracking-tighter">Servicios Destacados</h2>
+          <p className="text-slate-500 max-w-2xl mx-auto text-xl font-medium">Ofrecemos todo lo que tu mascota necesita para una vida saludable y feliz.</p>
+        </div>
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10 grid md:grid-cols-3 gap-10">
           {[
-            { title: 'Consulta General', icon: '🩺', desc: 'Evaluación profesional completa para prevenir y tratar enfermedades.' },
-            { title: 'Estética y Baño', icon: '✂️', desc: 'Cuidado profesional para que tu mascota luzca y se sienta increíble.' },
-            { title: 'Vacunación', icon: '💉', desc: 'Protección esencial con esquemas completos para todas las edades.' }
-          ].map((s) => (
-            <div key={s.title} className="p-8 rounded-3xl bg-green-50/50 border border-green-100 transition-all hover:shadow-xl hover:-translate-y-1">
-              <span className="text-4xl mb-6 block">{s.icon}</span>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">{s.title}</h3>
-              <p className="text-gray-600 leading-relaxed">{s.desc}</p>
+            { title: 'Consulta General', icon: Stethoscope, desc: 'Evaluación profesional completa para prevenir y tratar enfermedades.' },
+            { title: 'Estética y Baño', icon: Scissors, desc: 'Cuidado profesional para que tu mascota luzca y se sienta increíble.' },
+            { title: 'Vacunación', icon: Syringe, desc: 'Protección esencial con esquemas completos para todas las edades.' }
+          ].map((s, i) => (
+            <div
+              key={s.title}
+              className="p-10 rounded-[40px] bg-white border border-slate-100 transition-all hover:shadow-2xl hover:-translate-y-2 group shadow-premium"
+              style={{ animationDelay: `${i * 100}ms` }}
+            >
+              <div className="w-16 h-16 bg-emerald-50 text-[#064e3b] rounded-2xl flex items-center justify-center mb-8 transform group-hover:scale-110 transition-transform group-hover:bg-[#ffb700] group-hover:text-white shadow-sm">
+                <s.icon size={32} />
+              </div>
+              <h3 className="text-2xl font-black text-[#064e3b] mb-4 tracking-tight">{s.title}</h3>
+              <p className="text-slate-500 leading-relaxed font-medium">{s.desc}</p>
             </div>
           ))}
         </div>
       </section>
 
-      {/* Why Choose Us */}
-      <section className="py-24 bg-green-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            <div>
-              <h2 className="text-3xl lg:text-5xl font-bold text-gray-900 mb-8">¿Por qué elegirnos?</h2>
-              <div className="space-y-6">
+      <section className="py-32 bg-white">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10">
+          <div className="grid lg:grid-cols-2 gap-24 items-center">
+            <div className="animate-fade-in-right">
+              <h2 className="text-5xl lg:text-7xl font-black text-[#064e3b] mb-12 tracking-tighter leading-none">¿Por qué elegirnos?</h2>
+              <div className="space-y-10">
                 {[
-                  { t: 'Equipo Experto', d: 'Veterinarios titulados con pasión por los animales y años de experiencia.' },
-                  { t: 'Atención Personalizada', d: 'Cada mascota es única y recibe un trato adaptado a sus necesidades.' },
-                  { t: 'Tecnología Moderna', d: 'Equipamiento de vanguardia para diagnósticos precisos y rápidos.' }
+                  { t: 'Equipo Experto', d: 'Veterinarios titulados con pasión por los animales y años de experiencia.', icon: ShieldCheck },
+                  { t: 'Atención Personalizada', d: 'Cada mascota es única y recibe un trato adaptado a sus necesidades.', icon: Heart },
+                  { t: 'Tecnología Moderna', d: 'Equipamiento de vanguardia para diagnósticos precisos y rápidos.', icon: Activity }
                 ].map((item) => (
-                  <div key={item.t} className="flex gap-4">
-                    <CheckCircle2 className="text-green-600 shrink-0" size={28} />
+                  <div key={item.t} className="flex gap-6 group">
+                    <div className="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center text-[#064e3b] group-hover:bg-[#ffb700] transition-colors shrink-0">
+                      <item.icon size={24} />
+                    </div>
                     <div>
-                      <h4 className="text-lg font-bold text-gray-900 mb-1">{item.t}</h4>
-                      <p className="text-gray-600">{item.d}</p>
+                      <h4 className="text-xl font-black text-[#064e3b] mb-2 tracking-tight">{item.t}</h4>
+                      <p className="text-slate-500 font-medium leading-relaxed">{item.d}</p>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
-            <div className="bg-white p-4 rounded-[40px] shadow-2xl rotate-3">
-              <img src="https://images.unsplash.com/photo-1584132967334-10e028bd69f7?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" alt="Veterinaria" className="rounded-[30px]" />
+            <div className="relative animate-fade-in-up">
+              <div className="absolute -inset-4 bg-gradient-to-tr from-[#ffb700]/20 to-emerald-100/20 rounded-[56px] blur-2xl -z-10"></div>
+              <div className="bg-white p-4 rounded-[56px] shadow-2xl rotate-2 hover:rotate-0 transition-transform duration-700 overflow-hidden">
+                <img src="/vet_hero.png" alt="Clínica Veterinaria" className="rounded-[42px] object-cover w-full h-full" />
+              </div>
             </div>
           </div>
         </div>
       </section>
-
-      {/* Map Section */}
-      <section className="py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="rounded-[40px] overflow-hidden shadow-xl border h-[450px]">
-            <iframe 
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3772.3664366601445!2d-103.8767396!3d18.9152342!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8424d55055555555%3A0x8888888888888888!2sTecom%C3%A1n%2C%20Colima!5e0!3m2!1ses-419!2smx!4v1700000000000!5m2!1ses-419!2smx" 
-              width="100%" 
-              height="100%" 
-              style={{ border: 0 }} 
-              allowFullScreen={true} 
-              loading="lazy" 
-              referrerPolicy="no-referrer-when-downgrade"
-            ></iframe>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="bg-gray-900 text-white pt-20 pb-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid md:grid-cols-4 gap-12 mb-16">
-          <div className="col-span-2">
-            <span className="text-3xl font-bold text-green-500 mb-6 block">La Codorniz</span>
-            <p className="text-gray-400 max-w-sm leading-relaxed">
-              Comprometidos con la salud y bienestar de tus mascotas. Servicio profesional, ético y humano en el corazón de Tecomán.
-            </p>
-          </div>
-          <div>
-            <h4 className="text-lg font-bold mb-6">Contacto</h4>
-            <ul className="space-y-4 text-gray-400">
-              <li className="flex items-center gap-3"><MapPin size={18} /> Tecomán, Colima, MX</li>
-              <li className="flex items-center gap-3"><Phone size={18} /> 313 116 3103</li>
-              <li className="flex items-center gap-3"><Mail size={18} /> hola@lacodorniz.com</li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="text-lg font-bold mb-6">Horarios</h4>
-            <ul className="space-y-4 text-gray-400">
-              <li className="flex items-center gap-3"><Clock size={18} /> Lun - Sáb: 9am - 8pm</li>
-              <li className="flex items-center gap-3"><Clock size={18} /> Dom: Solo urgencias</li>
-            </ul>
-          </div>
-        </div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 border-t border-gray-800 text-center text-gray-500 text-sm">
-          &copy; {new Date().getFullYear()} Veterinaria La Codorniz. Todos los derechos reservados.
-        </div>
-      </footer>
     </div>
   );
 }

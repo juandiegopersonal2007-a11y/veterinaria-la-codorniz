@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --port 12345",
+    "dev": "next dev --port 3000",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
@@ -29,6 +29,7 @@
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.46.1",
     "recharts": "^2.8.0",
+    "sonner": "^2.0.7",
     "swr": "^2.2.2",
     "tailwind-merge": "^1.14.0",
     "tailwindcss-animate": "^1.0.7",

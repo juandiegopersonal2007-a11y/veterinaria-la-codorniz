@@ -1,11 +1,10 @@
 // apps/api/src/routes/pet.routes.ts
 import { Router, Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
 import { z } from 'zod';
+import { prisma } from '../lib/prisma';
 import { authMiddleware } from '../middlewares/auth.middleware';
-import { uploadImage } from '../services/cloudinary.service';
+import { deleteImageByUrl, uploadImage } from '../services/r2.service';
 
-const prisma = new PrismaClient();
 const router = Router();
 
 const petSchema = z.object({
@@ -16,12 +15,12 @@ const petSchema = z.object({
   weight: z.number().optional().nullable(),
   chipNumber: z.string().optional().nullable(),
   clientId: z.string().cuid(),
-  photo: z.string().optional().nullable(), // base64 photo
+  photo: z.string().optional().nullable(),
 });
 
 router.use(authMiddleware);
 
-router.get('/', async (req: Request, res: Response) => {
+router.get('/', async (_req: Request, res: Response) => {
   const pets = await prisma.pet.findMany({
     include: { client: { select: { name: true } } },
     orderBy: { name: 'asc' }
@@ -32,18 +31,18 @@ router.get('/', async (req: Request, res: Response) => {
 router.post('/', async (req: Request, res: Response) => {
   try {
     const { photo, ...petData } = petSchema.parse(req.body);
-    let photoUrl = null;
-    
+    let photoUrl: string | null = null;
+
     if (photo) {
-      photoUrl = await uploadImage(photo);
+      photoUrl = await uploadImage(photo, 'pets');
     }
 
-    const pet = await prisma.pet.create({ 
-      data: { ...petData, photoUrl } 
+    const pet = await prisma.pet.create({
+      data: { ...petData, photoUrl }
     });
     res.status(201).json(pet);
-  } catch (error) {
-    res.status(400).json({ error });
+  } catch (error: any) {
+    res.status(400).json({ error: error?.message || error });
   }
 });
 
@@ -58,19 +57,34 @@ router.get('/:id', async (req: Request, res: Response) => {
 
 router.put('/:id', async (req: Request, res: Response) => {
   try {
-    const data = petSchema.partial().parse(req.body);
+    const { photo, ...data } = petSchema.partial().parse(req.body);
+    const existing = await prisma.pet.findUnique({ where: { id: req.params.id } });
+    if (!existing) {
+      return res.status(404).json({ error: 'Mascota no encontrada' });
+    }
+
+    let photoUrl = existing.photoUrl;
+    if (photo) {
+      photoUrl = await uploadImage(photo, 'pets');
+      await deleteImageByUrl(existing.photoUrl);
+    }
+
     const pet = await prisma.pet.update({
       where: { id: req.params.id },
-      data
+      data: { ...data, photoUrl },
     });
     res.json(pet);
-  } catch (error) {
-    res.status(400).json({ error });
+  } catch (error: any) {
+    res.status(400).json({ error: error?.message || error });
   }
 });
 
 router.delete('/:id', async (req: Request, res: Response) => {
-  await prisma.pet.delete({ where: { id: req.params.id } });
+  const existing = await prisma.pet.findUnique({ where: { id: req.params.id } });
+  if (existing) {
+    await prisma.pet.delete({ where: { id: req.params.id } });
+    await deleteImageByUrl(existing.photoUrl);
+  }
   res.status(204).send();
 });
 

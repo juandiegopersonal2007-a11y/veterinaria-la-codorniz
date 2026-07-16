@@ -1,18 +1,17 @@
 // apps/api/src/routes/appointment.routes.ts
 import { Router, Request, Response } from 'express';
-import { PrismaClient, ServiceType, AppointmentStatus } from '@prisma/client';
 import { z } from 'zod';
 import { authMiddleware } from '../middlewares/auth.middleware';
+import { prisma } from '../lib/prisma';
 
-const prisma = new PrismaClient();
 const router = Router();
 
 const appointmentSchema = z.object({
   clientId: z.string().cuid(),
   petId: z.string().cuid(),
   date: z.string().transform(val => new Date(val)),
-  service: z.nativeEnum(ServiceType),
-  status: z.nativeEnum(AppointmentStatus).optional(),
+  service: z.string(),
+  status: z.string().optional(),
   notes: z.string().optional().nullable(),
 });
 

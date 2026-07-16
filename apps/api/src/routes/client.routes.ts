@@ -1,10 +1,9 @@
 // apps/api/src/routes/client.routes.ts
 import { Router, Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
 import { z } from 'zod';
 import { authMiddleware } from '../middlewares/auth.middleware';
+import { prisma } from '../lib/prisma';
 
-const prisma = new PrismaClient();
 const router = Router();
 
 const clientSchema = z.object({

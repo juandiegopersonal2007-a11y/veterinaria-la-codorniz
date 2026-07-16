@@ -1,9 +1,8 @@
 // apps/api/src/routes/dashboard.routes.ts
 import { Router, Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
 import { authMiddleware, adminMiddleware, AuthRequest } from '../middlewares/auth.middleware';
+import { prisma } from '../lib/prisma';
 
-const prisma = new PrismaClient();
 const router = Router();
 
 router.use(authMiddleware);

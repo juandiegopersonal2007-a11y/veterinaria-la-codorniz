@@ -1,25 +1,28 @@
 // apps/web/app/layout.tsx
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { FloatingHelp } from '@/components/public/floating-help';
+import { Navbar } from '@/components/public/navbar';
+import { Footer } from '@/components/public/footer';
+import { Toaster } from 'sonner';
 
 const inter = Inter({ subsets: ['latin'] });
 
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+};
+
 export const metadata: Metadata = {
-  title: 'Veterinaria La Codorniz | Cuidamos a tu mascota como familia',
-  description: 'Clínica veterinaria líder en Tecomán, Colima. Consultas, estética, cirugías y más.',
-  keywords: ['veterinaria', 'Tecomán', 'clínica veterinaria', 'mascotas', 'La Codorniz'],
-  authors: [{ name: 'Veterinaria La Codorniz' }],
-  openGraph: {
-    title: 'Veterinaria La Codorniz',
-    description: 'Cuidamos a tu mascota como familia.',
-    url: 'https://veterinariacodorniz.com',
-    siteName: 'Veterinaria La Codorniz',
-    images: [{ url: '/og-image.jpg', width: 1200, height: 630 }],
-    locale: 'es_MX',
-    type: 'website',
+  title: {
+    default: 'La Codorniz - Tienda de Mascotas',
+    template: '%s | La Codorniz'
   },
+  description: 'Tu tienda de mascotas favorita en Tecomán, Colima. Alimentos, juguetes, accesorios y estética canina y felina.',
+  keywords: ['tienda de mascotas', 'Tecomán', 'alimentos para perros', 'alimentos para gatos', 'estética canina', 'juguetes para mascotas'],
+  authors: [{ name: 'La Codorniz' }],
+  robots: 'index, follow',
 };
 
 export default function RootLayout({
@@ -28,10 +31,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="es">
-      <body className={inter.className}>
-        {children}
+    <html lang="es" className="scroll-smooth">
+      <body className="">
+        <Navbar />
+        <main className="min-h-screen">
+          {children}
+        </main>
+        <Footer />
         <FloatingHelp />
+        <Toaster position="top-center" richColors />
       </body>
     </html>
   );

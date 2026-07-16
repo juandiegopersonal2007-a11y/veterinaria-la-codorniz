@@ -10,7 +10,8 @@ import {
   Dog, 
   Calendar, 
   LogOut,
-  ChevronRight
+  ChevronRight,
+  Package
 } from 'lucide-react';
 
 const sidebarLinks = [
@@ -18,6 +19,7 @@ const sidebarLinks = [
   { name: 'Citas', href: '/admin/citas', icon: Calendar },
   { name: 'Clientes', href: '/admin/clientes', icon: Users },
   { name: 'Mascotas', href: '/admin/mascotas', icon: Dog },
+  { name: 'Productos', href: '/admin/productos', icon: Package },
 ];
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -26,18 +28,22 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
 
   const handleLogout = () => {
     localStorage.removeItem('auth-token');
+    localStorage.removeItem('refresh-token');
     localStorage.removeItem('user');
     document.cookie = 'auth-token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
     router.push('/login');
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-[#f8fafc]">
       {/* Sidebar */}
       <aside className="w-64 bg-white border-r flex flex-col fixed inset-y-0 z-50">
-        <div className="p-6">
-          <Link href="/" className="text-2xl font-bold text-green-700 block">La Codorniz</Link>
-          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Panel de Control</p>
+        <div className="p-8">
+          <Link href="/" className="text-2xl font-black text-[#064e3b] block tracking-tight">La Codorniz</Link>
+          <div className="flex items-center gap-1 mt-1">
+            <div className="h-1 w-4 bg-[#b47d2b] rounded-full"></div>
+            <p className="text-[10px] font-bold text-[#b47d2b] uppercase tracking-[0.2em]">Administración</p>
+          </div>
         </div>
 
         <nav className="flex-1 px-4 space-y-2 mt-4">
@@ -48,28 +54,28 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
                 key={link.href}
                 href={link.href}
                 className={cn(
-                  "flex items-center justify-between p-3 rounded-2xl font-semibold transition-all group",
+                  "flex items-center justify-between p-4 rounded-2xl font-bold transition-all group",
                   isActive 
-                    ? "bg-green-600 text-white shadow-lg shadow-green-100" 
-                    : "text-gray-500 hover:bg-green-50 hover:text-green-700"
+                    ? "bg-[#064e3b] text-white shadow-xl shadow-emerald-100" 
+                    : "text-slate-500 hover:bg-emerald-50 hover:text-[#064e3b]"
                 )}
               >
                 <div className="flex items-center gap-3">
-                  <link.icon size={20} />
+                  <link.icon size={20} className={isActive ? "text-[#e9c46a]" : "group-hover:text-[#064e3b]"} />
                   <span>{link.name}</span>
                 </div>
-                {isActive && <ChevronRight size={16} />}
+                {isActive && <ChevronRight size={16} className="text-[#e9c46a]" />}
               </Link>
             );
           })}
         </nav>
 
-        <div className="p-4 border-t">
+        <div className="p-6 border-t border-slate-100">
           <button 
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 p-3 rounded-2xl font-semibold text-gray-500 hover:bg-red-50 hover:text-red-600 transition-all"
+            className="w-full flex items-center gap-3 p-4 rounded-2xl font-bold text-slate-400 hover:bg-red-50 hover:text-red-600 transition-all group"
           >
-            <LogOut size={20} />
+            <LogOut size={20} className="group-hover:rotate-12 transition-transform" />
             <span>Cerrar Sesión</span>
           </button>
         </div>

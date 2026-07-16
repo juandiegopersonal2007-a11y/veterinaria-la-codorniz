@@ -5,8 +5,11 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  // Pooled (PgBouncer) — runtime de la app / Vercel serverless
+  url       = env("DATABASE_URL")
+  // Directa — solo para prisma migrate / db push
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
@@ -14,64 +17,64 @@ model User {
   email     String   @unique
   password  String
   name      String
-  role      Role     @default(ADMIN)
+  role      String   @default("ADMIN")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model Client {
-  id        String   @id @default(cuid())
-  name      String
-  phone     String
-  email     String?
-  address   String?
-  pets      Pet[]
+  id           String        @id @default(cuid())
+  name         String
+  phone        String
+  email        String?
+  address      String?
+  pets         Pet[]
   appointments Appointment[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 }
 
 model Pet {
-  id          String       @id @default(cuid())
-  name        String
-  species     String
-  breed       String?
-  birthDate   DateTime?
-  weight      Float?
-  chipNumber  String?      @unique
-  photoUrl    String?
-  clientId    String
-  client      Client       @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  id             String          @id @default(cuid())
+  name           String
+  species        String
+  breed          String?
+  birthDate      DateTime?
+  weight         Float?
+  chipNumber     String?         @unique
+  photoUrl       String?
+  clientId       String
+  client         Client          @relation(fields: [clientId], references: [id], onDelete: Cascade)
   medicalHistory MedicalRecord[]
   appointments   Appointment[]
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
 }
 
 model MedicalRecord {
-  id          String   @id @default(cuid())
-  petId       String
-  pet         Pet      @relation(fields: [petId], references: [id], onDelete: Cascade)
-  date        DateTime @default(now())
-  diagnosis   String
-  treatment   String
-  notes       String?
-  vetName     String
-  createdAt   DateTime @default(now())
+  id        String   @id @default(cuid())
+  petId     String
+  pet       Pet      @relation(fields: [petId], references: [id], onDelete: Cascade)
+  date      DateTime @default(now())
+  diagnosis String
+  treatment String
+  notes     String?
+  vetName   String
+  createdAt DateTime @default(now())
 }
 
 model Appointment {
-  id        String            @id @default(cuid())
+  id        String   @id @default(cuid())
   clientId  String
-  client    Client            @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
   petId     String
-  pet               Pet               @relation(fields: [petId], references: [id], onDelete: Cascade)
+  pet       Pet      @relation(fields: [petId], references: [id], onDelete: Cascade)
   date      DateTime
-  service   ServiceType
-  status    AppointmentStatus @default(PENDING)
+  service   String
+  status    String   @default("PENDING")
   notes     String?
-  createdAt DateTime          @default(now())
-  updatedAt DateTime          @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Service {
@@ -83,24 +86,15 @@ model Service {
   active      Boolean @default(true)
 }
 
-enum Role {
-  ADMIN
-  STAFF
-}
-
-enum ServiceType {
-  CONSULTA
-  ESTETICA
-  BANO
-  CIRUGIA_MENOR
-  VACUNACION
-  DESPARASITACION
-  OTRO
-}
-
-enum AppointmentStatus {
-  PENDING
-  CONFIRMED
-  COMPLETED
-  CANCELLED
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  category    String
+  price       Float
+  imageUrl    String?
+  rating      Float    @default(4.5)
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }

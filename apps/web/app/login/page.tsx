@@ -21,8 +21,9 @@ export default function LoginPage() {
     try {
       const { data } = await apiClient.post('/auth/login', { email, password });
       localStorage.setItem('auth-token', data.token);
+      localStorage.setItem('refresh-token', data.refreshToken);
       localStorage.setItem('user', JSON.stringify(data.user));
-      // Set cookie for middleware
+      // Set cookie for Next.js middleware route protection
       document.cookie = `auth-token=${data.token}; path=/; max-age=${8 * 60 * 60}`;
       router.push('/admin/dashboard');
     } catch (err: any) {

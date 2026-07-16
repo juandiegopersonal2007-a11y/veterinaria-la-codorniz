@@ -38,8 +38,10 @@ export default function MascotasPage() {
     breed: '',
     chipNumber: '',
     clientId: '',
-    weight: 0
+    weight: 0,
+    photo: null as string | null,
   });
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
 
   const fetchData = async () => {
     try {
@@ -60,19 +62,47 @@ export default function MascotasPage() {
     fetchData();
   }, []);
 
+  const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 8 * 1024 * 1024) {
+      alert('La imagen no puede superar 8 MB');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = String(reader.result);
+      setFormData((prev) => ({ ...prev, photo: dataUrl }));
+      setPhotoPreview(dataUrl);
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      const payload: Record<string, unknown> = {
+        name: formData.name,
+        species: formData.species,
+        breed: formData.breed || null,
+        chipNumber: formData.chipNumber || null,
+        clientId: formData.clientId,
+        weight: formData.weight || null,
+      };
+      if (formData.photo) {
+        payload.photo = formData.photo;
+      }
+
       if (editingPet) {
-        await apiClient.put(`/pets/${editingPet.id}`, formData);
+        await apiClient.put(`/pets/${editingPet.id}`, payload);
       } else {
-        await apiClient.post('/pets', formData);
+        await apiClient.post('/pets', payload);
       }
       setIsModalOpen(false);
       fetchData();
       resetForm();
-    } catch (err) {
-      alert('Error al guardar la mascota');
+    } catch (err: any) {
+      alert(err?.response?.data?.error || 'Error al guardar la mascota');
     }
   };
 
@@ -84,8 +114,10 @@ export default function MascotasPage() {
       breed: pet.breed || '',
       chipNumber: pet.chipNumber || '',
       clientId: pet.clientId,
-      weight: pet.weight || 0
+      weight: pet.weight || 0,
+      photo: null,
     });
+    setPhotoPreview(pet.photoUrl || null);
     setIsModalOpen(true);
   };
 
@@ -102,7 +134,8 @@ export default function MascotasPage() {
 
   const resetForm = () => {
     setEditingPet(null);
-    setFormData({ name: '', species: '', breed: '', chipNumber: '', clientId: '', weight: 0 });
+    setFormData({ name: '', species: '', breed: '', chipNumber: '', clientId: '', weight: 0, photo: null });
+    setPhotoPreview(null);
   };
 
   const filteredPets = pets.filter(p => 
@@ -264,6 +297,19 @@ export default function MascotasPage() {
                   onChange={(e) => setFormData({...formData, weight: parseFloat(e.target.value)})}
                 />
               </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-bold text-gray-700">Foto (máx. 8 MB)</label>
+              <Input
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                className="h-12 rounded-xl"
+                onChange={handlePhotoChange}
+              />
+              {photoPreview && (
+                <img src={photoPreview} alt="Vista previa" className="mt-2 w-24 h-24 object-cover rounded-xl border" />
+              )}
             </div>
 
             <DialogFooter className="pt-4">

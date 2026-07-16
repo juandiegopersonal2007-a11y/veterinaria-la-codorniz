@@ -4,8 +4,8 @@
 
 @layer base {
   :root {
-    /* VIP CLINIC PALETTE - DEEP & PROFESSIONAL */
-    --background: 220 33% 98%;    /* Off-white background */
+    /* CLEAN & MODERN CLINIC PALETTE */
+    --background: 210 50% 99%;    /* Slightly blueish white */
     --foreground: 222.2 84% 4.9%;
 
     --card: 0 0% 100%;
@@ -14,18 +14,19 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    /* Deep Emerald/Forest Green for VIP look */
-    --primary: 160 84% 15%;       /* #064e3b - Deep Forest */
+    /* Deep Emerald Green for primary */
+    --primary: 158 95% 18%;       /* #022c22 */
     --primary-foreground: 210 40% 98%;
 
-    --secondary: 160 30% 95%;     /* Very light green */
-    --secondary-foreground: 160 84% 15%;
+    /* Soft Emerald Green for secondary */
+    --secondary: 162 90% 45%;     /* #0ecf91 */
+    --secondary-foreground: 210 40% 98%;
 
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
-    /* Gold/Bronze Accent for VIP feeling */
-    --accent: 35 60% 50%;         /* #b47d2b - Bronze/Gold */
+    /* Subtle Gold Accent */
+    --accent: 42 100% 50%;         /* #ffb700 */
     --accent-foreground: 210 40% 98%;
 
     --destructive: 0 84.2% 60.2%;
@@ -33,15 +34,14 @@
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 160 84% 15%;
+    --ring: 158 95% 18%;
 
-    --radius: 1.25rem;            /* More rounded for premium feel */
+    --radius: 1.25rem;            /* Rounded corners for modern feel */
   }
 
   .dark {
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
-    /* ... other dark mode vars if needed */
   }
 }
 
@@ -55,7 +55,49 @@
   }
 }
 
+/* Custom styles for modern clinic aesthetic */
+.shadow-premium {
+  box-shadow: 0 20px 40px -15px rgba(2, 44, 34, 0.08);
+}
+
+.shadow-gold {
+  box-shadow: 0 10px 30px -5px rgba(255, 183, 0, 0.2);
+}
+
+/* Smooth transitions */
+.transition-premium {
+  @apply transition-all duration-300 ease-in-out;
+}
+
 /* Premium smooth scrolling */
 html {
   scroll-behavior: smooth;
+}
+
+/* Custom animations */
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in-right {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.8s ease-out forwards;
+}
+
+.animate-fade-in-right {
+  animation: fade-in-right 0.8s ease-out forwards;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.5s ease-out forwards;
 }
