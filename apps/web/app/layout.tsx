@@ -23,6 +23,11 @@ export const metadata: Metadata = {
   keywords: ['tienda de mascotas', 'Tecomán', 'alimentos para perros', 'alimentos para gatos', 'estética canina', 'juguetes para mascotas'],
   authors: [{ name: 'La Codorniz' }],
   robots: 'index, follow',
+  icons: {
+    icon: '/logoveterinaria.jpeg',
+    shortcut: '/logoveterinaria.jpeg',
+    apple: '/logoveterinaria.jpeg',
+  },
 };
 
 export default function RootLayout({
