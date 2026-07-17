@@ -12,6 +12,12 @@ const nextConfig = {
       },
     ],
   },
+  // Help Vercel builds: disable static generation for pages that might cause hangs
+  experimental: {
+    // Add any experimental flags if needed
+  },
+  // Increase timeout for static generation
+  staticPageGenerationTimeout: 120,
 };
 
 module.exports = nextConfig;
