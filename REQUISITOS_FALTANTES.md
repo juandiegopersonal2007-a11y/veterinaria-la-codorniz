@@ -9,7 +9,7 @@ El proyecto está bien estructurado y las compilaciones funcionan correctamente 
 **Estado**: ❌ No configurado
 **Descripción**: Se requiere una base de datos PostgreSQL para almacenar los datos.
 **Acciones necesarias**:
-- Instalar PostgreSQL localmente O usar servicio en la nube (Supabase, Neon.tech, Railway)
+- Instalar PostgreSQL localmente O usar servicio en la nube (Supabase, Neon.tech, Render)
 - Actualizar `DATABASE_URL` en `.env` con la URL correcta
 - Ejecutar `npx prisma migrate dev` para crear las tablas
 - Ejecutar `npm run db:seed` para poblar datos iniciales
@@ -26,14 +26,11 @@ El proyecto está bien estructurado y las compilaciones funcionan correctamente 
 
 ### 3. Despliegue y CI/CD
 **Estado**: ❌ No configurado
-**Descripción**: El prompt incluye configuración para Vercel, Railway y GitHub Actions.
-**Acciones necesarias**:
-- Configurar repositorio en GitHub
-- Configurar proyectos en Vercel (frontend) y Railway/Supabase (backend)
+**Descripción**: - Configurar repositorio en GitHub
+- Configurar proyectos en Vercel (frontend) y Render/Supabase (backend)
 - Configurar secrets en GitHub Actions:
   - `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`
-  - `RAILWAY_TOKEN`
-- Crear archivos `.github/workflows/deploy-web.yml` y `deploy-api.yml`
+- Crear archivo `.github/workflows/deploy-web.yml`
 
 ### 4. Funcionalidades Adicionales
 **Estado**: ⚠️ Implementadas pero no probadas
@@ -82,7 +79,7 @@ El proyecto está bien estructurado y las compilaciones funcionan correctamente 
 1. **Configurar base de datos** (crítico - sin esto no funciona)
 2. **Actualizar variables de entorno** con valores reales
 3. **Probar funcionalidades locales** (`npm run web:dev` y `npm run api:dev`)
-4. **Configurar despliegue** en Vercel y Railway
+4. **Configurar despliegue** en Vercel y Render
 5. **Testing exhaustivo** de todas las rutas y componentes
 6. **Optimizaciones** para producción
 

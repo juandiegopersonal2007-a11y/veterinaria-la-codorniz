@@ -13,7 +13,7 @@ Tu objetivo es generar código completo, funcional y listo para producción para
 
 🏗️ ARQUITECTURA DEL SISTEMA
 Stack tecnológico
-CapaTecnologíaFrontendNext.js 14 (App Router, SSR/SSG)EstilosTailwind CSS v3 + shadcn/uiBackendNode.js + Express (API REST)ORMPrisma 5Base de datosPostgreSQL 15AuthJWT + bcrypt + middleware de rolesStorageCloudinary (imágenes)Deploy FrontendVercelDeploy BackendRailwayDB CloudSupabase (PostgreSQL)CI/CDGitHub Actions
+CapaTecnologíaFrontendNext.js 14 (App Router, SSR/SSG)EstilosTailwind CSS v3 + shadcn/uiBackendNode.js + Express (API REST)ORMPrisma 5Base de datosPostgreSQL 15AuthJWT + bcrypt + middleware de rolesStorageCloudinary (imágenes)Deploy FrontendVercelDeploy BackendRenderDB CloudSupabase (PostgreSQL)CI/CDGitHub Actions
 Estructura de carpetas
 veterinaria-la-codorniz/
 ├── apps/
@@ -351,29 +351,8 @@ jobs:
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           vercel-args: '--prod'
-Deploy Backend (Railway)
-yaml# .github/workflows/deploy-api.yml
-name: Deploy API
-
-on:
-  push:
-    branches: [main]
-    paths: ['apps/api/**']
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-      - run: npm ci
-      - run: npm run build --workspace=apps/api
-      - uses: bervProject/railway-deploy@v1.0.0
-        with:
-          railway_token: ${{ secrets.RAILWAY_TOKEN }}
-          service: 'api'
+Deploy Backend (Render)
+El backend se despliega automáticamente en Render al conectar el repositorio de GitHub. No requiere archivo de workflow de GitHub Actions.
 
 📞 SECCIÓN DE AYUDA / CONTACTO RÁPIDO
 Componente flotante (visible en todas las páginas)

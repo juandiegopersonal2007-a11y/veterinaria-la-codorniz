@@ -41,8 +41,31 @@ if (process.env.NODE_ENV !== 'production') {
 const app = express();
 
 app.use(helmet());
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://veterinaria-la-codorniz-web.vercel.app',
+];
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL || true,
+  origin: (origin, callback) => {
+    // Permitir peticiones sin origen (como herramientas de prueba)
+    if (!origin) return callback(null, true);
+    
+    const customFrontend = process.env.FRONTEND_URL;
+    if (customFrontend && origin === customFrontend) {
+      return callback(null, true);
+    }
+    
+    if (
+      allowedOrigins.includes(origin) ||
+      origin.endsWith('.vercel.app') ||
+      process.env.NODE_ENV !== 'production'
+    ) {
+      callback(null, true);
+    } else {
+      callback(new Error('No permitido por CORS'));
+    }
+  },
   credentials: true,
 }));
 // 10 MB: permite subir fotos en base64 sin el corte del límite default (100kb)

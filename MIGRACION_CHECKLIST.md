@@ -32,9 +32,9 @@
 - [ ] Nunca subas `.env` / `.env.local` al repo
 
 ### 3. Hosting de la API (importante)
-Vercel hospeda bien el **frontend Next.js**. La API es **Express** y necesita otro servicio gratuito que no se pause (o con wake corto):
+Vercel hospeda bien el **frontend Next.js**. La API es **Express** y necesita otro servicio gratuito o de pago que no se pause (o con wake corto):
 
-Opciones recomendadas: **Railway**, **Render** o **Fly.io**.
+Opciones recomendadas: **Render** (actualmente configurada) o **Fly.io**.
 
 En ese servicio configura las mismas env vars:
 `DATABASE_URL`, `DIRECT_URL`, `R2_*`, `JWT_*`, `FRONTEND_URL`, `ADMIN_*`, `PORT`
@@ -51,7 +51,7 @@ npm start
 - [ ] Importa el repo en Vercel
 - [ ] Root Directory: `apps/web`
 - [ ] Env vars en Vercel:
-  - `NEXT_PUBLIC_API_URL` = `https://TU-API.railway.app/api` (o la URL real de tu API)
+  - `NEXT_PUBLIC_API_URL` = `https://veterinaria-api-88vn.onrender.com/api` (o la URL real de tu API en Render)
   - `NEXT_PUBLIC_WHATSAPP_NUMBER`, redes, etc.
 - [ ] Deploy y prueba `/tienda`, `/chip`, `/login`, `/admin/productos`
 

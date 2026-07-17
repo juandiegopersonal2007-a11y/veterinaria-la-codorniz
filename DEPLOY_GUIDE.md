@@ -4,7 +4,7 @@
 
 ```
 Frontend (Next.js)  →  Vercel
-Backend (Express)   →  Railway
+Backend (Express)   →  Render (Web Service)
 Base de datos       →  Neon (PostgreSQL serverless)
 Imágenes            →  Cloudflare R2
 ```
@@ -28,27 +28,26 @@ git commit -m "feat: deploy inicial"
 git push -u origin main
 ```
 
-> **Importante:** Si te pide usuario y contraseña de GitHub, necesitas un Personal Access Token.
-> Ve a GitHub → Settings → Developer Settings → Personal access tokens → Generate new token.
-
 ---
 
-## PASO 2 — Desplegar la API en Railway
+## PASO 2 — Desplegar la API en Render
 
-Railway hospeda el backend Express.
+Render hospeda el backend Express.
 
-1. Ve a [railway.app](https://railway.app) e inicia sesión con tu cuenta de GitHub.
+1. Ve a [render.com](https://render.com) e inicia sesión con tu cuenta de GitHub.
 
-2. Haz clic en **New Project → Deploy from GitHub repo**.
+2. Haz clic en **New + → Web Service**.
 
-3. Selecciona el repositorio `veterinaria-la-codorniz`.
+3. Selecciona tu repositorio `veterinaria-la-codorniz`.
 
-4. Railway detectará el monorepo. En la configuración del servicio:
+4. En la configuración del servicio:
+   - **Name:** `veterinaria-api`
    - **Root Directory:** `apps/api`
+   - **Runtime:** `Node`
    - **Build Command:** `npm run build`
-   - **Start Command:** `npm run start`
+   - **Start Command:** `npm start`
 
-5. En el panel del servicio, ve a **Variables** y añade estas variables de entorno una por una:
+5. En la sección **Environment Variables**, añade estas variables de entorno una por una:
 
 ```
 DATABASE_URL=postgresql://neondb_owner:npg_i6mtXzh3FfST@ep-purple-union-aumemj4w-pooler.c-10.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
@@ -76,14 +75,9 @@ PORT=3001
 
 > **FRONTEND_URL** lo añades después, cuando tengas la URL de Vercel (Paso 4).
 
-6. Haz clic en **Deploy**. Espera a que aparezca el check verde ✅.
+6. Haz clic en **Create Web Service**. Espera a que se complete el build y el despliegue.
 
-7. En el panel de Railway, copia la **URL pública** del servicio.
-   Tendrá un formato como: `https://veterinaria-api-production.up.railway.app`
-
-8. Ejecuta las migraciones de base de datos desde Railway:
-   - Ve a tu servicio → pestaña **Shell** (o usa Railway CLI)
-   - Ejecuta: `npx prisma db push`
+7. Copia la URL que te asigna Render, por ejemplo: `https://veterinaria-api-88vn.onrender.com`.
 
 ---
 
@@ -101,38 +95,31 @@ PORT=3001
    - **Build Command:** `next build` (default)
    - **Output Directory:** `.next` (default)
 
-5. Despliega el proyecto una primera vez sin variables para confirmar que Vercel lo reconoce.
-   Probablemente falle porque le falta `NEXT_PUBLIC_API_URL`. Eso lo arreglamos ahora.
-
-6. Ve a **Settings → Environment Variables** del proyecto en Vercel y añade:
+5. Ve a **Settings → Environment Variables** del proyecto en Vercel y añade:
 
 ```
-NEXT_PUBLIC_API_URL=https://veterinaria-api-production.up.railway.app/api
+NEXT_PUBLIC_API_URL=https://veterinaria-api-88vn.onrender.com/api
 NEXT_PUBLIC_WHATSAPP_NUMBER=523131163103
 ```
 
-> Reemplaza la URL de Railway con la que copiaste en el Paso 2.
+6. Haz clic en **Deploy**.
 
-7. Ve a **Deployments** y haz clic en **Redeploy** para que tome las variables.
-
-8. Copia la URL de Vercel (formato: `https://veterinaria-la-codorniz.vercel.app`).
+7. Copia la URL de Vercel (formato: `https://veterinaria-la-codorniz-web.vercel.app`).
 
 ---
 
 ## PASO 4 — Conectar API y frontend (CORS)
 
-Ahora que tienes ambas URLs, vuelve a Railway:
+Ahora que tienes la URL de Vercel:
 
-1. Abre tu servicio de la API.
-2. Ve a **Variables** y añade:
+1. Abre tu panel de control de Render y entra a tu servicio de API.
+2. Ve a la pestaña **Environment** y añade o actualiza:
 
 ```
-FRONTEND_URL=https://veterinaria-la-codorniz.vercel.app
+FRONTEND_URL=https://veterinaria-la-codorniz-web.vercel.app
 ```
 
-> Reemplaza con tu URL real de Vercel.
-
-3. Railway redesplegará automáticamente. Espera el check verde ✅.
+3. Render redesplegará automáticamente para aplicar el cambio.
 
 ---
 
@@ -145,7 +132,7 @@ Abre estas URLs en el navegador y verifica:
 | Inicio | `https://tu-proyecto.vercel.app` |
 | Tienda | `https://tu-proyecto.vercel.app/tienda` |
 | Admin  | `https://tu-proyecto.vercel.app/admin/dashboard` |
-| Health API | `https://tu-api.railway.app/api/health` |
+| Health API | `https://veterinaria-api-88vn.onrender.com/api/health` |
 
 El endpoint `/api/health` debe responder: `{"status":"ok","db":"connected"}`
 
@@ -164,30 +151,28 @@ Si tienes un dominio (ej. `veterinariacodorniz.com`):
 2. Escribe tu dominio y haz clic en Add.
 3. Vercel te dará registros DNS. Ve al panel de tu registrador de dominio y añade esos registros.
 
-### API (Railway)
-1. Ve a Settings → Networking en tu servicio de Railway.
-2. Haz clic en Generate Domain o añade un dominio custom.
-3. Actualiza `FRONTEND_URL` en Railway y `NEXT_PUBLIC_API_URL` en Vercel con los nuevos dominios.
+### API (Render)
+1. Ve a Settings en tu servicio de Render.
+2. En la sección **Custom Domains**, añade tu subdominio (ej: `api.veterinariacodorniz.com`).
+3. Sigue las instrucciones de DNS de Render.
+4. Actualiza `FRONTEND_URL` en Render y `NEXT_PUBLIC_API_URL` en Vercel con los nuevos dominios.
 
 ---
 
-## PASO 7 — Configurar GitHub Actions (despliegue automático)
+## PASO 7 — Configurar GitHub Actions (opcional)
 
-Para que cada `git push` a `main` despliegue automáticamente:
+Para desplegar automáticamente el frontend a través de GitHub Actions en cada push a main:
 
 ### Secrets necesarios en GitHub
 Ve a tu repo en GitHub → Settings → Secrets and variables → Actions → New repository secret:
 
 | Secret | Valor |
 |--------|-------|
-| `RAILWAY_TOKEN` | Token de Railway (Railway → Account Settings → Tokens) |
 | `VERCEL_TOKEN` | Token de Vercel (Vercel → Settings → Tokens) |
 | `VERCEL_ORG_ID` | ID de tu organización en Vercel (Settings → General) |
 | `VERCEL_PROJECT_ID` | ID del proyecto (Project Settings → General) |
-| `NEXT_PUBLIC_API_URL` | URL de tu API en Railway + `/api` |
+| `NEXT_PUBLIC_API_URL` | `https://veterinaria-api-88vn.onrender.com/api` |
 | `NEXT_PUBLIC_WHATSAPP_NUMBER` | `523131163103` |
-
-Una vez configurados, cada vez que hagas `git push origin main` el CI/CD desplegará automáticamente.
 
 ---
 
@@ -195,8 +180,8 @@ Una vez configurados, cada vez que hagas `git push origin main` el CI/CD despleg
 
 | Servicio | URL |
 |----------|-----|
-| Frontend (Vercel) | `https://veterinaria-la-codorniz.vercel.app` |
-| API (Railway) | `https://veterinaria-api-production.up.railway.app` |
+| Frontend (Vercel) | `https://veterinaria-la-codorniz-web.vercel.app` |
+| API (Render) | `https://veterinaria-api-88vn.onrender.com` |
 | Base de datos | Neon — `ep-purple-union-aumemj4w` |
 | Imágenes | Cloudflare R2 — `pub-ccf8a9a9104b48a5a457aab2e743cf0b.r2.dev` |
 
@@ -204,7 +189,7 @@ Una vez configurados, cada vez que hagas `git push origin main` el CI/CD despleg
 
 ## Notas de mantenimiento
 
-- **Neon** escala a cero cuando no hay actividad pero se reactiva automático en milisegundos. No requiere acción manual.
-- **Railway** tiene plan Hobby ($5/mes) si el free tier se agota. El free tier incluye 500 horas/mes.
+- **Neon** escala a cero cuando no hay actividad pero se reactiva automáticamente.
+- **Render** en el plan gratuito suspende los Web Services tras 15 minutos de inactividad, lo que provoca un retardo en la primera petición (wake-up de unos 50 segundos).
 - **Vercel** y **Cloudflare R2** son gratuitos en el volumen esperado de esta aplicación.
 - Los tokens JWT expiran en 8 horas. El sistema los renueva automáticamente sin cerrar sesión.
