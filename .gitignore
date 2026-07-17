@@ -101,7 +101,6 @@ dist
 # Gatsby files
 .cache/
 /public
-apps/web/public
 
 # Storybook build outputs
 .out
