@@ -3,55 +3,10 @@
 import { ArrowRight, CheckCircle2, MapPin, Phone, Mail, Clock, ShieldCheck, Heart, Star, Activity, Stethoscope, Scissors, Syringe } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { useEffect, useState } from 'react';
 
 export default function Home() {
-  const [splashVisible, setSplashVisible] = useState(true);
-  const [splashFading, setSplashFading] = useState(false);
-
-  useEffect(() => {
-    // Check if the user has already seen the splash in this session
-    if (typeof window !== 'undefined' && sessionStorage.getItem('splash-shown')) {
-      setSplashVisible(false);
-      return;
-    }
-    // Start fading out after the video has played enough (3.5s)
-    const fadeTimer = setTimeout(() => {
-      setSplashFading(true);
-    }, 3500);
-    // Remove splash completely after fade animation (500ms)
-    const removeTimer = setTimeout(() => {
-      setSplashVisible(false);
-      sessionStorage.setItem('splash-shown', '1');
-    }, 4000);
-    return () => {
-      clearTimeout(fadeTimer);
-      clearTimeout(removeTimer);
-    };
-  }, []);
-
   return (
     <div className="flex flex-col min-h-screen">
-      {/* ── Splash / Welcome Screen ── */}
-      {splashVisible && (
-        <div
-          className={`fixed inset-0 z-[9999] bg-[#064e3b] flex items-center justify-center transition-opacity duration-500 ${splashFading ? 'opacity-0' : 'opacity-100'}`}
-          onClick={() => { setSplashFading(true); setTimeout(() => { setSplashVisible(false); sessionStorage.setItem('splash-shown', '1'); }, 500); }}
-        >
-          <video
-            src="/presentacion.mp4"
-            autoPlay
-            muted
-            playsInline
-            className="w-full h-full object-cover"
-            onEnded={() => { setSplashFading(true); setTimeout(() => { setSplashVisible(false); sessionStorage.setItem('splash-shown', '1'); }, 500); }}
-          />
-          {/* Skip hint */}
-          <div className={`absolute bottom-10 left-1/2 -translate-x-1/2 text-white/60 text-sm font-bold tracking-widest uppercase transition-opacity duration-700 ${splashFading ? 'opacity-0' : 'opacity-100'}`}>
-            Toca para continuar
-          </div>
-        </div>
-      )}
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 bg-[#fdfcfb] overflow-hidden">
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10 relative z-10">
