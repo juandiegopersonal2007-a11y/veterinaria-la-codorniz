@@ -7,14 +7,6 @@ const faqs = [
     a: 'Puedes agendar una cita directamente desde nuestra página de contacto o llamando a nuestra línea de atención 313 116 3103.'
   },
   {
-    q: '¿Qué servicios ofrecen en urgencias?',
-    a: 'Contamos con personal de guardia 24/7 para emergencias críticas, cirugías de urgencia y estabilización.'
-  },
-  {
-    q: '¿Tienen planes de salud preventivos?',
-    a: 'Sí, ofrecemos membresías de salud que incluyen vacunas, desparasitaciones y consultas preventivas anuales.'
-  },
-  {
     q: '¿Aceptan transferencias bancarias?',
     a: 'Sí, aceptamos transferencias bancarias. Puedes consultarnos por WhatsApp para recibir los datos de la cuenta.'
   }
